@@ -32,6 +32,18 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+.deployer.key
+.deployer.json
+.deployer.address
+
+# indexer + uploads
+/data
+/public/uploads
+/public/meta
+/contracts/out
+/contracts/cache
+/contracts/broadcast
 
 # vercel
 .vercel

@@ -1,103 +1,122 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { TokenCard } from "@/components/TokenCard";
+import { useStats, useTokens } from "@/hooks/useTokens";
+import { useOracle } from "@/hooks/useOracle";
+import { formatUsd } from "@/lib/format";
+import { cn } from "@/lib/format";
+import { explorerAddress, isLaunchpadDeployed, oracleFor, ZERO_ADDRESS } from "@/lib/config";
+import { formatOracleAge } from "@/lib/oracle";
+import { useNetwork } from "@/components/NetworkProvider";
+
+const tabs = ["new", "market cap", "volume", "graduated"] as const;
+
+export default function DiscoverPage() {
+  const [sort, setSort] = useState<(typeof tabs)[number]>("new");
+  const [q, setQ] = useState("");
+  const { data: tokens, isLoading } = useTokens(sort, q);
+  const { data: stats } = useStats();
+  const { data: oracle } = useOracle();
+  const { network } = useNetwork();
+  const oracleAddr = oracleFor(network);
+  const oracleReady = oracleAddr !== ZERO_ADDRESS;
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div>
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="font-mono text-2xl tracking-tight">discover</h1>
+          <p className="mt-1 max-w-xl text-sm text-muted">
+            launch tokens on a bonding curve. at $25,000 market cap they graduate to the amm. swap is powered by official qie pools.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div className="grid grid-cols-2 gap-3 font-mono text-[11px] text-muted sm:grid-cols-4">
+          <Stat k="tokens" v={String(stats?.tokens ?? 0)} />
+          <Stat k="graduated" v={String(stats?.graduated ?? 0)} />
+          <Stat k="24h vol" v={formatUsd(stats?.volume24hUsd, { compact: true })} />
+          <Stat
+            k="qie / usd"
+            v={
+              oracle
+                ? formatUsd(oracle.usd, { subCent: true })
+                : stats?.qieUsd
+                  ? formatUsd(stats.qieUsd, { subCent: true })
+                  : "—"
+            }
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </div>
+
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-1">
+          {tabs.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setSort(t)}
+              className={cn(
+                "rounded-sm px-3 py-1.5 font-mono text-xs",
+                sort === t ? "bg-elev-2 text-ink" : "text-muted hover:text-ink",
+              )}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="search name / ticker / address"
+          className="w-full rounded-sm border border-line bg-elev px-3 py-1.5 font-mono text-xs outline-none sm:w-72"
+        />
+      </div>
+
+      <p className="mb-5 font-mono text-[11px] text-muted">
+        {oracleReady ? (
+          <>
+            usd figures use the on-chain QIE/USD oracle{" "}
+            <a href={explorerAddress(network, oracleAddr)} target="_blank" rel="noreferrer" className="text-accent">
+              {oracleAddr.slice(0, 8)}…{oracleAddr.slice(-4)}
+            </a>
+            {oracle ? ` · updated ${formatOracleAge(oracle.ageSec)}` : ""}
+          </>
+        ) : (
+          <>on {network.short}, usd oracle is not live yet. swap still lists official qie pool tokens on mainnet.</>
+        )}
+        {stats?.oracleError ? ` · ${stats.oracleError}` : ""}
+      </p>
+
+      {!isLaunchpadDeployed(network.key) && (
+        <div className="mb-5 rounded-sm border border-line bg-elev px-3 py-2 font-mono text-[11px] text-muted">
+          launchpad not deployed on {network.short}. swap uses official qie pools on mainnet.
+        </div>
+      )}
+
+      {isLoading && <div className="font-mono text-xs text-muted">loading…</div>}
+      {!isLoading && (!tokens || tokens.length === 0) && (
+        <div className="rounded-sm border border-dashed border-line px-6 py-16 text-center font-mono text-sm text-muted">
+          no tokens yet. be the first to{" "}
+          <a href="/create" className="text-accent underline">
+            create
+          </a>
+          .
+        </div>
+      )}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {tokens?.map((t) => (
+          <TokenCard key={t.address} token={t} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Stat({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="rounded-sm border border-line bg-elev px-3 py-2">
+      <div className="text-faint">{k}</div>
+      <div className="text-ink">{v}</div>
     </div>
   );
 }
