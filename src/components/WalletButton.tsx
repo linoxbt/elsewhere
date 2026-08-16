@@ -52,7 +52,11 @@ export function WalletButton() {
           <p className="mb-2 text-muted">connect</p>
           <div className="space-y-1">
             {options.map((c) => {
-              const pending = isPending && variables?.connector?.id === c.id;
+              const activeId =
+                variables?.connector && typeof variables.connector === "object" && "id" in variables.connector
+                  ? String((variables.connector as { id: string }).id)
+                  : "";
+              const pending = isPending && activeId === c.id;
               return (
                 <button
                   key={c.id}
