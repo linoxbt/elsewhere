@@ -8,7 +8,9 @@ The product name is **elsewhere**. The protocol still runs on QIE only (testnet 
 
 ## Live
 
-- App (after Netlify deploy): see the latest GitHub About / Netlify site
+- App: https://elsewhere-qie.netlify.app
+- Docs: https://elsewhere-qie.netlify.app/docs
+- GitHub: https://github.com/linoxbt/elsewhere
 - In-app docs: [`/docs`](/docs)
 - Testnet explorer: [testnet.qie.digital](https://testnet.qie.digital)
 - Mainnet explorer: [mainnet.qie.digital](https://mainnet.qie.digital)
