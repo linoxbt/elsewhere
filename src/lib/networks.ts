@@ -44,7 +44,7 @@ export const NETWORKS: Record<NetworkKey, NetworkDef> = {
     explorer: "https://testnet.qie.digital",
     explorerName: "QIE Testnet Explorer",
     faucet: "https://www.qie.digital/faucet",
-    logo: "/brand/chains/qie-testnet.svg",
+    logo: "/brand/chains/qie.png",
     officialDex: null,
     qieUsdOracle: ZERO,
   },
@@ -62,7 +62,7 @@ export const NETWORKS: Record<NetworkKey, NetworkDef> = {
     ],
     explorer: "https://mainnet.qie.digital",
     explorerName: "QIE Explorer",
-    logo: "/brand/chains/qie-mainnet.svg",
+    logo: "/brand/chains/qie.png",
     officialDex: {
       // Official QIEdex (dex.qie.digital) — UniswapV2-style
       factory: "0xf297CC2e3A711fEeadf54a59a8162b71189E03d7",

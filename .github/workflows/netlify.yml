@@ -26,6 +26,8 @@ jobs:
           NEXT_PUBLIC_QIE_USD_ORACLE=${{ secrets.NEXT_PUBLIC_QIE_USD_ORACLE }}
           NEXT_PUBLIC_LENDING_POOL=${{ secrets.NEXT_PUBLIC_LENDING_POOL }}
           NEXT_PUBLIC_BATCH_SENDER=${{ secrets.NEXT_PUBLIC_BATCH_SENDER }}
+          NEXT_PUBLIC_MONEY_MARKET=${{ secrets.NEXT_PUBLIC_MONEY_MARKET }}
+          NEXT_PUBLIC_ELSE_TOKEN=${{ secrets.NEXT_PUBLIC_ELSE_TOKEN }}
           EOF
       - run: npm ci
       - name: Deploy to Netlify
@@ -41,4 +43,6 @@ jobs:
           NEXT_PUBLIC_QIE_USD_ORACLE: ${{ secrets.NEXT_PUBLIC_QIE_USD_ORACLE }}
           NEXT_PUBLIC_LENDING_POOL: ${{ secrets.NEXT_PUBLIC_LENDING_POOL }}
           NEXT_PUBLIC_BATCH_SENDER: ${{ secrets.NEXT_PUBLIC_BATCH_SENDER }}
+          NEXT_PUBLIC_MONEY_MARKET: ${{ secrets.NEXT_PUBLIC_MONEY_MARKET }}
+          NEXT_PUBLIC_ELSE_TOKEN: ${{ secrets.NEXT_PUBLIC_ELSE_TOKEN }}
         run: npx --yes netlify-cli deploy --build --prod --message "gha ${GITHUB_SHA}"

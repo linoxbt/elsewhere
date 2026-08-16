@@ -46,11 +46,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const hash = crypto.createHash("sha256").update(buf).digest("hex").slice(0, 24);
-  const dir = path.join(process.cwd(), "public", "uploads");
-  fs.mkdirSync(dir, { recursive: true });
-  const filename = `${hash}.${ext}`;
-  fs.writeFileSync(path.join(dir, filename), buf);
-  const url = `/uploads/${filename}`;
-  return NextResponse.json({ uri: url, url });
+  const dataUri = `data:${file.type};base64,${buf.toString("base64")}`;
+  try {
+    const hash = crypto.createHash("sha256").update(buf).digest("hex").slice(0, 24);
+    const dir = path.join(process.cwd(), "public", "uploads");
+    fs.mkdirSync(dir, { recursive: true });
+    const filename = `${hash}.${ext}`;
+    fs.writeFileSync(path.join(dir, filename), buf);
+    const url = `/uploads/${filename}`;
+    return NextResponse.json({ uri: url, url });
+  } catch {
+    return NextResponse.json({ uri: dataUri, url: dataUri });
+  }
 }

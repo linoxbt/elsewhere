@@ -8,6 +8,7 @@ import {
   BookOpen,
   Coins,
   Droplets,
+  House,
   LayoutGrid,
   Rocket,
   Send,
@@ -16,11 +17,12 @@ import {
 import { cn } from "@/lib/format";
 
 export const SUITE = [
-  { href: "/", label: "discover", hint: "new tokens", icon: Sparkles },
+  { href: "/", label: "home", hint: "landing", icon: House },
+  { href: "/discover", label: "discover", hint: "new tokens", icon: Sparkles },
   { href: "/create", label: "create", hint: "launch a token", icon: Rocket },
   { href: "/swap", label: "swap", hint: "trade qie pools", icon: ArrowLeftRight },
   { href: "/pools", label: "pools", hint: "add liquidity", icon: Droplets },
-  { href: "/lend", label: "lend", hint: "supply & borrow", icon: Coins },
+  { href: "/lend", label: "lend", hint: "supply & borrow ELSE", icon: Coins },
   { href: "/send", label: "send", hint: "single / batch", icon: Send },
   { href: "/docs", label: "docs", hint: "protocol guide", icon: BookOpen },
 ] as const;
@@ -48,13 +50,14 @@ export function SuiteMenu() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex items-center gap-1.5 rounded-sm border border-line px-2.5 py-1 font-mono text-[11px] hover:bg-elev-2",
+          "flex h-8 w-8 items-center justify-center rounded-sm border border-line hover:bg-elev-2",
           open ? "bg-elev-2 text-ink" : "bg-elev text-ink",
         )}
         aria-expanded={open}
+        aria-label="suite"
+        title="suite"
       >
         <LayoutGrid className="h-3.5 w-3.5" />
-        <span>suite</span>
       </button>
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-[20.5rem] rounded-sm border border-line bg-elev p-2 shadow-xl sm:w-[22rem]">
@@ -64,7 +67,7 @@ export function SuiteMenu() {
           <div className="grid grid-cols-2 gap-1">
             {SUITE.map((item) => {
               const Icon = item.icon;
-              const active = item.href === "/" ? path === "/" : path.startsWith(item.href);
+              const active = item.href === "/" ? path === "/" : path === item.href || path.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.href}

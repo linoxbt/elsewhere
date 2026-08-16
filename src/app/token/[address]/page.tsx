@@ -8,7 +8,7 @@ import { PriceChart } from "@/components/PriceChart";
 import { TradePanel } from "@/components/TradePanel";
 import { useChart, useToken, useTrades } from "@/hooks/useTokens";
 import { formatAmount, formatUsd, shortAddress, timeAgo } from "@/lib/format";
-import { explorerTx, PROTOCOL } from "@/lib/config";
+import { explorerAddress, explorerTx, PROTOCOL } from "@/lib/config";
 import { useNetwork } from "@/components/NetworkProvider";
 import { bondingCurveAbi } from "@/lib/abi/launchpad";
 import { useQueryClient } from "@tanstack/react-query";
@@ -66,25 +66,47 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
   const pct = Math.min(100, Math.round(token.progress * 100));
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
       <div className="space-y-5">
         <div className="flex items-start gap-4">
-          <TokenImage src={token.image} address={token.address} symbol={token.symbol} size={64} />
+          <TokenImage src={token.image} address={token.address} symbol={token.symbol} size={72} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl">{token.name}</h1>
-              <span className="font-mono text-xs uppercase text-muted">{token.symbol}</span>
-              {token.graduated && (
-                <span className="rounded-sm border border-[#2a3324] px-1.5 py-0.5 font-mono text-[10px] text-accent-2">
+              <h1 className="font-mono text-2xl tracking-tight">{token.name}</h1>
+              <span className="font-mono text-xs uppercase text-muted">${token.symbol}</span>
+              {token.graduated ? (
+                <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-accent-2">
                   graduated
+                </span>
+              ) : (
+                <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-accent">
+                  bonding
                 </span>
               )}
             </div>
-            <div className="mt-1 flex flex-wrap gap-3">
+            <div className="mt-2 flex flex-wrap items-center gap-3">
               <CopyAddress address={token.address} label="ca" />
               <CopyAddress address={token.creator} label="dev" />
+              <a
+                href={explorerAddress(network, token.address)}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[11px] text-accent"
+              >
+                explorer
+              </a>
+              {token.curve && token.curve !== "0x0000000000000000000000000000000000000000" && (
+                <a
+                  href={explorerAddress(network, token.curve)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[11px] text-muted"
+                >
+                  curve
+                </a>
+              )}
             </div>
-            <div className="mt-2 flex gap-3 font-mono text-[11px] text-accent">
+            <div className="mt-2 flex flex-wrap gap-3 font-mono text-[11px] text-accent">
               {token.twitter && (
                 <a href={token.twitter} target="_blank" rel="noreferrer">
                   twitter
@@ -92,7 +114,7 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
               )}
               {token.website && (
                 <a href={token.website} target="_blank" rel="noreferrer">
-                  web
+                  website
                 </a>
               )}
               {token.telegram && (
@@ -100,16 +122,19 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
                   telegram
                 </a>
               )}
+              <Link href={`/swap?out=${token.address}`} className="text-muted hover:text-ink">
+                swap
+              </Link>
             </div>
           </div>
         </div>
 
-        {token.description && <p className="text-sm text-muted">{token.description}</p>}
+        {token.description && <p className="max-w-2xl text-sm leading-relaxed text-muted">{token.description}</p>}
 
         <div>
           {token.graduated ? (
-            <div className="rounded-sm border border-[#2a3324] bg-[#0d120e] px-3 py-2 font-mono text-xs text-accent-2">
-              graduated ✓ trading on the amm ·{" "}
+            <div className="rounded-sm border border-line bg-elev px-3 py-2 font-mono text-xs text-accent-2">
+              graduated · trading on the AMM ·{" "}
               <Link href={`/swap?out=${token.address}`} className="underline">
                 open swap
               </Link>
@@ -117,22 +142,23 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
           ) : (
             <div>
               <div className="mb-1 flex justify-between font-mono text-[11px] text-muted">
-                <span>bonding curve → ${PROTOCOL.graduationMarketCapUsd.toLocaleString()}</span>
+                <span>bonding curve → ${PROTOCOL.graduationMarketCapUsd.toLocaleString()} mcap</span>
                 <span>
                   {formatUsd(token.marketCapUsd, { compact: true })} · {pct}%
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-sm bg-[#1a1a1a]">
+              <div className="h-2 overflow-hidden rounded-sm bg-elev-2">
                 <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
               </div>
             </div>
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-2 font-mono text-[11px]">
+        <div className="grid grid-cols-2 gap-2 font-mono text-[11px] sm:grid-cols-4">
           <Kpi k="price" v={formatUsd(token.priceUsd, { subCent: true })} />
-          <Kpi k="mcap" v={formatUsd(token.marketCapUsd, { compact: true })} />
-          <Kpi k="24h vol" v={formatUsd(token.volume24hUsd, { compact: true })} />
+          <Kpi k="market cap" v={formatUsd(token.marketCapUsd, { compact: true })} />
+          <Kpi k="24h volume" v={formatUsd(token.volume24hUsd, { compact: true })} />
+          <Kpi k="holders" v={String(token.holders ?? holders.length)} />
         </div>
 
         <PriceChart candles={candles} />

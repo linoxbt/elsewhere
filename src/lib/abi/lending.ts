@@ -162,3 +162,105 @@ export const batchSenderAbi = [
     outputs: [],
   },
 ] as const;
+
+export const moneyMarketAbi = [
+  {
+    type: "function",
+    name: "supply",
+    stateMutability: "payable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "withdraw",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "amount", type: "uint256" }],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "borrow",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "token", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "repay",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "token", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "listedTokens",
+    stateMutability: "view",
+    inputs: [{ name: "", type: "uint256" }],
+    outputs: [{ type: "address" }],
+  },
+  {
+    type: "function",
+    name: "listedCount",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "supplyBalance",
+    stateMutability: "view",
+    inputs: [{ name: "user", type: "address" }],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "borrowBalance",
+    stateMutability: "view",
+    inputs: [
+      { name: "user", type: "address" },
+      { name: "token", type: "address" },
+    ],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "qieSupplyRateWad",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "accountSnapshot",
+    stateMutability: "view",
+    inputs: [{ name: "user", type: "address" }],
+    outputs: [
+      { name: "supplied", type: "uint256" },
+      { name: "debtQie", type: "uint256" },
+      { name: "health", type: "uint256" },
+      { name: "tokens", type: "address[]" },
+    ],
+  },
+  {
+    type: "function",
+    name: "marketSnapshot",
+    stateMutability: "view",
+    inputs: [{ name: "token", type: "address" }],
+    outputs: [
+      { name: "listed", type: "bool" },
+      { name: "cash", type: "uint256" },
+      { name: "borrows", type: "uint256" },
+      { name: "utilBps", type: "uint256" },
+      { name: "borrowAprWad", type: "uint256" },
+      { name: "supplyAprWad", type: "uint256" },
+      { name: "priceQieWad", type: "uint256" },
+    ],
+  },
+] as const;

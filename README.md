@@ -20,7 +20,8 @@ The product name is **elsewhere**. The protocol still runs on QIE only (testnet 
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Discover launched tokens (new / market cap / volume / graduated) |
+| `/` | Landing |
+| `/discover` | Discover launched tokens (new / market cap / volume / graduated) |
 | `/create` | Deploy a token + bonding curve (image, ticker, socials, optional initial buy) |
 | `/token/[address]` | Curve progress, price chart, buy/sell, trades, holders |
 | `/swap` | Swap tokens listed from **official QIE pools** on the selected network |
@@ -65,6 +66,8 @@ Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (tes
 | Testnet QIE/USD feed | [`0x7F3635B76790cF57A955E6576504ef17564FE924`](https://testnet.qie.digital/address/0x7F3635B76790cF57A955E6576504ef17564FE924) |
 | Lending pool | [`0x9fC086D60443362D49E2124D2dAF8c5814113918`](https://testnet.qie.digital/address/0x9fC086D60443362D49E2124D2dAF8c5814113918) |
 | Batch sender | [`0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4`](https://testnet.qie.digital/address/0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4) |
+| Money market | [`0xbE8B9Ae75BfA7FfDd79C4ae684f9DF18b7e8CBf9`](https://testnet.qie.digital/address/0xbE8B9Ae75BfA7FfDd79C4ae684f9DF18b7e8CBf9) |
+| ELSE token | [`0x870505B6e86eA2e5910409751aB1F13186825E93`](https://testnet.qie.digital/address/0x870505B6e86eA2e5910409751aB1F13186825E93) |
 
 Creation fee on testnet is **0.5 QIE** (feed set to $5 so the on-chain $2.50 fee is payable with a faucet drop). Graduation threshold remains **$25,000** USD market cap.
 

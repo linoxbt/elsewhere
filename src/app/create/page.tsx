@@ -53,8 +53,30 @@ export default function CreatePage() {
       toastFail(new Error("max 5MB"));
       return;
     }
-    setImageFile(f);
-    setPreview(URL.createObjectURL(f));
+    const compact = await compressImage(f);
+    setImageFile(compact);
+    setPreview(URL.createObjectURL(compact));
+  }
+
+  async function compressImage(file: File): Promise<File> {
+    try {
+      const bmp = await createImageBitmap(file);
+      const max = 512;
+      const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      const w = Math.max(1, Math.round(bmp.width * scale));
+      const h = Math.max(1, Math.round(bmp.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(bmp, 0, 0, w, h);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
+      if (!blob) return file;
+      return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+    } catch {
+      return file;
+    }
   }
 
   async function submit(e: React.FormEvent) {
@@ -70,11 +92,26 @@ export default function CreatePage() {
     }
     setBusy(true);
     try {
-      const fd = new FormData();
-      fd.append("file", imageFile);
-      const up = await fetch("/api/upload", { method: "POST", body: fd });
-      if (!up.ok) throw new Error("image upload failed");
-      const { uri: imageUri } = await up.json();
+      let imageUri = "";
+      try {
+        const fd = new FormData();
+        fd.append("file", imageFile);
+        const up = await fetch("/api/upload", { method: "POST", body: fd });
+        if (up.ok) {
+          const json = (await up.json()) as { uri?: string };
+          imageUri = json.uri ?? "";
+        }
+      } catch {
+        /* fall through to local data uri */
+      }
+      if (!imageUri) {
+        imageUri = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ""));
+          reader.onerror = () => reject(new Error("could not read image"));
+          reader.readAsDataURL(imageFile);
+        });
+      }
 
       const metaRes = await fetch("/api/metadata", {
         method: "POST",
@@ -139,7 +176,7 @@ export default function CreatePage() {
 
       <form onSubmit={submit} className="space-y-4">
         <label
-          className="flex h-36 cursor-pointer flex-col items-center justify-center rounded-sm border border-dashed border-line bg-elev text-xs text-muted hover:border-[#333]"
+          className="flex h-36 cursor-pointer flex-col items-center justify-center rounded-sm border border-dashed border-line bg-elev text-xs text-muted hover:border-line-strong"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();

@@ -41,6 +41,8 @@ export const launchpadContracts = {
     qieUsdOracle: (process.env.NEXT_PUBLIC_QIE_USD_ORACLE ?? ZERO_ADDRESS) as `0x${string}`,
     lendingPool: (process.env.NEXT_PUBLIC_LENDING_POOL ?? ZERO_ADDRESS) as `0x${string}`,
     batchSender: (process.env.NEXT_PUBLIC_BATCH_SENDER ?? ZERO_ADDRESS) as `0x${string}`,
+    moneyMarket: (process.env.NEXT_PUBLIC_MONEY_MARKET ?? ZERO_ADDRESS) as `0x${string}`,
+    elseToken: (process.env.NEXT_PUBLIC_ELSE_TOKEN ?? ZERO_ADDRESS) as `0x${string}`,
   },
   mainnet: {
     wqie: (process.env.NEXT_PUBLIC_MAINNET_WQIE ?? ZERO_ADDRESS) as `0x${string}`,
@@ -52,6 +54,8 @@ export const launchpadContracts = {
     qieUsdOracle: NETWORKS.mainnet.qieUsdOracle,
     lendingPool: (process.env.NEXT_PUBLIC_MAINNET_LENDING_POOL ?? ZERO_ADDRESS) as `0x${string}`,
     batchSender: (process.env.NEXT_PUBLIC_MAINNET_BATCH_SENDER ?? ZERO_ADDRESS) as `0x${string}`,
+    moneyMarket: (process.env.NEXT_PUBLIC_MAINNET_MONEY_MARKET ?? ZERO_ADDRESS) as `0x${string}`,
+    elseToken: (process.env.NEXT_PUBLIC_MAINNET_ELSE_TOKEN ?? ZERO_ADDRESS) as `0x${string}`,
   },
 } as const;
 

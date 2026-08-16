@@ -24,8 +24,18 @@ export function resolveUri(uri?: string): string {
 
 export async function fetchMetadata(uri: string): Promise<TokenMetadataJson> {
   if (!uri) return {};
-  const url = resolveUri(uri);
   try {
+    if (uri.startsWith("data:application/json")) {
+      const b64 = uri.split(",")[1] ?? "";
+      const text =
+        typeof Buffer !== "undefined"
+          ? Buffer.from(b64, "base64").toString("utf8")
+          : atob(b64);
+      const json = JSON.parse(text) as TokenMetadataJson;
+      if (json.image) json.image = resolveUri(json.image);
+      return json;
+    }
+    const url = resolveUri(uri);
     const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return {};
     const json = (await res.json()) as TokenMetadataJson;

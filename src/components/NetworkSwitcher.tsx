@@ -29,7 +29,7 @@ export function NetworkSwitcher() {
         aria-expanded={open}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={network.logo} alt="" className="h-4 w-4 rounded-full" />
+        <img src={network.logo} alt="" className="h-4 w-4 object-contain" />
         <span className="hidden sm:inline">{network.name}</span>
         <span className="sm:hidden">{network.short}</span>
         <ChevronDown className="h-3 w-3 text-faint" />
@@ -57,7 +57,7 @@ export function NetworkSwitcher() {
                 )}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={net.logo} alt="" className="h-5 w-5 rounded-full" />
+                <img src={net.logo} alt="" className="h-5 w-5 object-contain" />
                 <span className="flex-1">{net.name}</span>
                 <span className="text-faint">{net.id}</span>
               </button>

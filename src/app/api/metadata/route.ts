@@ -27,9 +27,14 @@ export async function POST(req: NextRequest) {
       /* fall through */
     }
   }
-  const hash = crypto.createHash("sha256").update(json).digest("hex").slice(0, 24);
-  const dir = path.join(process.cwd(), "public", "meta");
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, `${hash}.json`), json);
-  return NextResponse.json({ uri: `/meta/${hash}.json` });
+  const dataUri = `data:application/json;base64,${Buffer.from(json).toString("base64")}`;
+  try {
+    const hash = crypto.createHash("sha256").update(json).digest("hex").slice(0, 24);
+    const dir = path.join(process.cwd(), "public", "meta");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, `${hash}.json`), json);
+    return NextResponse.json({ uri: `/meta/${hash}.json` });
+  } catch {
+    return NextResponse.json({ uri: dataUri });
+  }
 }

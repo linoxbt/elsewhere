@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+html[data-theme="dark"] {
   --bg: #050505;
   --bg-elev: #0c0c0c;
   --bg-elev-2: #121212;
@@ -16,6 +17,22 @@
   --warn: #c9a227;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+html[data-theme="light"] {
+  --bg: #f4f1ea;
+  --bg-elev: #fbf8f2;
+  --bg-elev-2: #efe9de;
+  --line: #e4ddd0;
+  --line-strong: #cfc6b6;
+  --text: #1c1914;
+  --muted: #6e675c;
+  --faint: #9a9286;
+  --accent: #8a6a45;
+  --accent-2: #5f7352;
+  --up: #2f7a4a;
+  --down: #b04343;
+  --warn: #9a7420;
 }
 
 @theme inline {
@@ -49,8 +66,12 @@ body {
 
 body {
   background-image:
-    radial-gradient(1200px 500px at 50% -120px, rgba(196, 181, 160, 0.06), transparent 60%),
-    linear-gradient(#050505, #050505);
+    radial-gradient(1200px 500px at 50% -120px, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
+    linear-gradient(var(--bg), var(--bg));
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #cfc6b6;
 }
 
 ::selection {

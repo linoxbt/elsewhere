@@ -15,6 +15,8 @@ const TESTNET = {
   oracle: "0x7F3635B76790cF57A955E6576504ef17564FE924",
   lendingPool: "0x9fC086D60443362D49E2124D2dAF8c5814113918",
   batchSender: "0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4",
+  moneyMarket: "0xbE8B9Ae75BfA7FfDd79C4ae684f9DF18b7e8CBf9",
+  elseToken: "0x870505B6e86eA2e5910409751aB1F13186825E93",
 };
 
 const MAINNET_DEX = {
@@ -160,6 +162,8 @@ export default function DocsPage() {
             ["Testnet QIE/USD feed", TESTNET.oracle],
             ["Lending pool", TESTNET.lendingPool],
             ["Batch sender", TESTNET.batchSender],
+            ["Money market", TESTNET.moneyMarket],
+            ["ELSE token", TESTNET.elseToken],
           ]}
         />
       </Section>
