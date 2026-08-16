@@ -31,7 +31,7 @@ function useReadOracle(address: `0x${string}`, chainId: number, enabled: boolean
   };
 }
 
-/** Official mainnet QIE/USD — always used for the displayed price. */
+/** Official mainnet QIE/USD. always used for the displayed price. */
 export function useDisplayOracle() {
   const address = displayOracle();
   return useReadOracle(address, NETWORKS.mainnet.id, address !== ZERO_ADDRESS);

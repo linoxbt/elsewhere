@@ -34,7 +34,7 @@ Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (tes
 
 ## Networks
 
-### QIE Testnet — chain `1983`
+### QIE Testnet, chain `1983`
 
 | | |
 | --- | --- |
@@ -44,14 +44,14 @@ Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (tes
 | Launchpad | **deployed** (see contracts below) |
 | Official DEX | none on this chain |
 
-### QIE Mainnet — chain `1990`
+### QIE Mainnet, chain `1990`
 
 | | |
 | --- | --- |
 | RPC | `https://rpc1mainnet.qie.digital` |
 | Explorer | https://mainnet.qie.digital |
 | Official DEX | [dex.qie.digital](https://www.dex.qie.digital) |
-| Launchpad | not deployed yet — swap still uses official QIEdex |
+| Launchpad | not deployed yet. swap still uses official QIEdex |
 | Oracle | official QIE/USD AggregatorV3 `0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17` |
 
 ## Testnet contracts (deployed)
@@ -104,7 +104,7 @@ forge test --match-contract LiveOracleFork --fork-url https://rpc1mainnet.qie.di
 ## App stack
 
 - Next.js 15 (App Router) + TypeScript + Tailwind v4
-- wagmi + viem + Reown AppKit (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`) — official Reown modal only
+- wagmi + viem + Reown AppKit (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`): official Reown modal only
 - Server indexer (`src/server/indexer.ts`) polls logs and serves `/api/tokens`, `/api/pools`, `/api/stats`
 - Official pool token list: `GET /api/official-tokens?chainId=1990|1983`
 - Testnet faucet eligibility: `POST /api/faucet`
@@ -156,7 +156,7 @@ Production: https://elsewhere-qie.netlify.app
 
 Deploys run from **GitHub Actions** (`.github/workflows/netlify.yml`) so Netlify does not clone the GitHub repo itself. Automatic Netlify git builds are stopped (`stop_builds`) because the build image hit `Host key verification failed` cloning GitHub without the GitHub App.
 
-The on-disk indexer (`data/`) is ephemeral on serverless hosts — discover will refill after a cold start.
+The on-disk indexer (`data/`) is ephemeral on serverless hosts. discover will refill after a cold start.
 
 ## Security notes
 

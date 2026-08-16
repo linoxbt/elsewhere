@@ -242,7 +242,7 @@ function AddLiquidity({ pools }: { pools: PoolRecord[] }) {
           <option value="">select</option>
           {launchpad.map((t) => (
             <option key={t.address} value={t.address}>
-              {t.symbol} — {t.name}
+              {t.symbol} / {t.name}
             </option>
           ))}
           {pools

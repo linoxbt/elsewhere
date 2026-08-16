@@ -2,7 +2,6 @@
 
 import { useAccount, useChainId } from "wagmi";
 import { Logo } from "./Logo";
-import { GlobalSearch } from "./GlobalSearch";
 import { NetworkSwitcher } from "./NetworkSwitcher";
 import { WalletButton } from "./WalletButton";
 import { FaucetButton } from "./FaucetButton";
@@ -21,9 +20,6 @@ export function Nav() {
     <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <Logo />
-        <div className="hidden min-w-0 flex-1 md:block">
-          <GlobalSearch />
-        </div>
         <div className="ml-auto flex items-center gap-2">
           <FaucetButton />
           {wrong && <AddChainButton compact />}
@@ -32,9 +28,6 @@ export function Nav() {
           <ThemeSwitcher />
           <WalletButton />
         </div>
-      </div>
-      <div className="border-t border-line px-4 py-2 md:hidden">
-        <GlobalSearch compact />
       </div>
     </header>
   );

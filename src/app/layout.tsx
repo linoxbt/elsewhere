@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "elsewhere",
-  description: "launchpad + amm on QIE — powered by official qie pools",
+  description: "launchpad + amm on QIE, powered by official qie pools",
   icons: { icon: "/brand/mark.jpg" },
 };
 

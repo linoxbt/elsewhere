@@ -223,7 +223,7 @@ export default function CreatePage() {
           <p>
             creation fee: {feeQie ? formatAmount(feeQie) : oracleError ? "oracle unavailable" : "reading oracle…"}{" "}
             QIE
-            {feeUsd > 0 ? ` (${formatUsd(feeUsd, { subCent: true })})` : ""} — paid in{" "}
+            {feeUsd > 0 ? ` (${formatUsd(feeUsd, { subCent: true })})` : ""}, paid in{" "}
             <span className="text-ink">native QIE</span>. priced on-chain from the official QIE/USD feed so it
             stays ${PROTOCOL.creationFeeUsd.toFixed(2)}.
           </p>

@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       oracle,
       pair: "QIE / USD",
       decimals: 8,
-      error: "no official testnet feed — mainnet oracle is live",
+      error: "no official testnet feed. mainnet oracle is live",
     });
   }
   try {

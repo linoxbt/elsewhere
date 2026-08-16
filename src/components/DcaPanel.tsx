@@ -175,7 +175,7 @@ export function DcaPanel({
             v={
               durationOk
                 ? `${formatDuration(duration)} (max 7d)`
-                : "over 7 days — lower interval or slices"
+                : "over 7 days. lower interval or slices"
             }
           />
           {!remainderOk && amt > 0n && <p className="text-down">total must divide evenly into {sliceN} swaps</p>}

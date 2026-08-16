@@ -37,7 +37,7 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fromWallet = networkById(chainId);
     if (isConnected && fromWallet && fromWallet.key !== key) {
-      // wallet moved — follow it
+      // wallet moved, follow it
       setKey(fromWallet.key);
       localStorage.setItem(STORAGE, fromWallet.key);
     }

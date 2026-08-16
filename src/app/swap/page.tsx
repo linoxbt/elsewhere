@@ -203,7 +203,7 @@ function SwapInner() {
       <p className="mt-1 mb-4 text-sm text-muted">
         {useOfficial
           ? "tokens from official qie pools on this network."
-          : "qie testnet — official dex is mainnet-only. native QIE is listed; launchpad tokens appear after deploy."}
+          : "qie testnet. official dex is mainnet-only. native QIE is listed; launchpad tokens appear after deploy."}
       </p>
 
       <div className="mb-4 flex rounded-sm border border-line p-0.5">

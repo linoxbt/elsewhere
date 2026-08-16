@@ -26,38 +26,47 @@ const stats = [
 export default function LandingPage() {
   return (
     <div className="-mx-4 -my-8">
-      <section className="relative overflow-hidden border-b border-line px-4 py-20 sm:py-28">
+      <section className="relative overflow-hidden border-b border-line px-4 py-16 sm:py-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_420px_at_50%_-80px,rgba(196,181,160,0.12),transparent_60%)]" />
-        <div className="relative mx-auto max-w-6xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-faint">
-            launchpad · amm · money market
-          </p>
-          <h1 className="mt-4 max-w-3xl font-mono text-4xl leading-[1.1] tracking-tight text-ink sm:text-6xl">
-            Launch, trade, and lend on QIE — in one place.
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            Elsewhere is the unified token launchpad and AMM for QIE. Bonding-curve launches
-            graduate into live pools. Swap reads official QIEdex liquidity. Lend QIE, borrow ELSE.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/discover"
-              className="rounded-sm bg-ink px-4 py-2 font-mono text-[12px] text-bg hover:opacity-90"
-            >
-              open app
-            </Link>
-            <Link
-              href="/create"
-              className="rounded-sm border border-line px-4 py-2 font-mono text-[12px] hover:bg-elev-2"
-            >
-              create a token
-            </Link>
-            <Link
-              href="/docs"
-              className="rounded-sm border border-line px-4 py-2 font-mono text-[12px] text-muted hover:text-ink"
-            >
-              read the docs
-            </Link>
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1fr_auto]">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-faint">
+              launchpad · amm · money market
+            </p>
+            <h1 className="mt-4 max-w-3xl font-mono text-4xl leading-[1.1] tracking-tight text-ink sm:text-6xl">
+              Launch, trade, and lend on QIE in one place.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+              Elsewhere is the unified token launchpad and AMM for QIE. Bonding-curve launches
+              graduate into live pools. Swap reads official QIEdex liquidity. Lend QIE, borrow ELSE.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/discover" className="btn-cta rounded-sm px-4 py-2 font-mono text-[12px]">
+                open app
+              </Link>
+              <Link
+                href="/create"
+                className="rounded-sm border border-line px-4 py-2 font-mono text-[12px] hover:bg-elev-2"
+              >
+                create a token
+              </Link>
+              <Link
+                href="/docs"
+                className="rounded-sm border border-line px-4 py-2 font-mono text-[12px] text-muted hover:text-ink"
+              >
+                read the docs
+              </Link>
+            </div>
+          </div>
+          <div className="justify-self-center lg:justify-self-end">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/mark.jpg"
+              alt="elsewhere"
+              width={360}
+              height={360}
+              className="h-56 w-56 rounded-sm object-cover shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-72 sm:w-72 lg:h-80 lg:w-80"
+            />
           </div>
         </div>
       </section>
@@ -119,10 +128,7 @@ export default function LandingPage() {
               Connect with Reown and pick a chain.
             </p>
           </div>
-          <Link
-            href="/discover"
-            className="shrink-0 rounded-sm bg-ink px-4 py-2 font-mono text-[12px] text-bg"
-          >
+          <Link href="/discover" className="btn-cta shrink-0 rounded-sm px-4 py-2 font-mono text-[12px]">
             enter elsewhere
           </Link>
         </div>

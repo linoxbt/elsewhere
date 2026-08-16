@@ -75,7 +75,7 @@ export function oracleFor(net: NetworkDef): `0x${string}` {
   return launchpadContracts.testnet.qieUsdOracle;
 }
 
-/** Always the official mainnet QIE/USD feed — used for the header price. */
+/** Always the official mainnet QIE/USD feed. used for the header price. */
 export function displayOracle(): `0x${string}` {
   return NETWORKS.mainnet.qieUsdOracle;
 }

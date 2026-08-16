@@ -25,7 +25,7 @@ export function FaucetButton() {
       });
       const json = await res.json();
       if (json.ok) {
-        toast.success("testnet QIE sent — wait ~1 minute");
+        toast.success("testnet QIE sent. wait ~1 minute");
       } else {
         toast.message(json.error || "faucet", {
           action: json.faucet

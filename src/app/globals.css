@@ -15,24 +15,28 @@ html[data-theme="dark"] {
   --up: #5dae78;
   --down: #c45b5b;
   --warn: #c9a227;
+  --cta-bg: #c4b5a0;
+  --cta-fg: #14110e;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 html[data-theme="light"] {
-  --bg: #f4f1ea;
-  --bg-elev: #fbf8f2;
-  --bg-elev-2: #efe9de;
-  --line: #e4ddd0;
-  --line-strong: #cfc6b6;
-  --text: #1c1914;
-  --muted: #6e675c;
-  --faint: #9a9286;
-  --accent: #8a6a45;
-  --accent-2: #5f7352;
+  --bg: #dcd4c6;
+  --bg-elev: #e8e0d2;
+  --bg-elev-2: #d0c6b6;
+  --line: #c2b7a4;
+  --line-strong: #ab9f8b;
+  --text: #2c271f;
+  --muted: #655e53;
+  --faint: #8a8174;
+  --accent: #6f5840;
+  --accent-2: #546546;
   --up: #2f7a4a;
   --down: #b04343;
   --warn: #9a7420;
+  --cta-bg: #3f3428;
+  --cta-fg: #efe6d8;
 }
 
 @theme inline {
@@ -71,7 +75,16 @@ body {
 }
 
 html[data-theme="light"] ::-webkit-scrollbar-thumb {
-  background: #cfc6b6;
+  background: #ab9f8b;
+}
+
+.btn-cta {
+  background: var(--cta-bg);
+  color: var(--cta-fg);
+}
+
+.btn-cta:hover {
+  opacity: 0.92;
 }
 
 ::selection {

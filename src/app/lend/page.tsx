@@ -13,12 +13,12 @@ import { useNetwork } from "@/components/NetworkProvider";
 import { useDisplayOracle } from "@/hooks/useOracle";
 
 function aprPct(wad?: bigint) {
-  if (wad === undefined) return "—";
+  if (wad === undefined) return "n/a";
   return `${(Number(wad) / 1e16).toFixed(2)}%`;
 }
 
 function healthLabel(bps?: bigint) {
-  if (bps === undefined) return "—";
+  if (bps === undefined) return "n/a";
   if (bps > 1_000_000_000n) return "∞";
   return `${(Number(bps) / 100).toFixed(0)}%`;
 }
@@ -143,7 +143,7 @@ export default function LendPage() {
                   <td className="px-3 py-2">{formatAmount(debtQie)} debt</td>
                   <td className="px-3 py-2">collateral</td>
                   <td className="px-3 py-2 text-up">{aprPct(qieApr.data)}</td>
-                  <td className="px-3 py-2 text-faint">—</td>
+                  <td className="px-3 py-2 text-faint">n/a</td>
                 </tr>
                 <tr className="border-t border-line">
                   <td className="px-3 py-2 text-ink">ELSE</td>
@@ -295,7 +295,7 @@ export default function LendPage() {
               </div>
             )}
             {tab === "borrow" && supplied === 0n && (
-              <p className="mt-3 font-mono text-[11px] text-muted">supply QIE first — that is the collateral for ELSE.</p>
+              <p className="mt-3 font-mono text-[11px] text-muted">supply QIE first. that is the collateral for ELSE.</p>
             )}
           </div>
         </>

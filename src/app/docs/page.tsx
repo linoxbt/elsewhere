@@ -51,7 +51,7 @@ export default function DocsPage() {
             MetaMask / Rabby / QIE Wallet.
           </li>
           <li>
-            Tap <strong className="text-ink">connect wallet</strong> — the official Reown modal
+            Tap <strong className="text-ink">connect wallet</strong>. The official Reown modal
             opens. Clicking a connected address opens the Reown account view (it does not
             disconnect).
           </li>
@@ -80,7 +80,7 @@ export default function DocsPage() {
             ["symbol", "QIE", "QIE"],
             ["rpc", "rpc1testnet.qie.digital", "rpc1mainnet.qie.digital"],
             ["explorer", "testnet.qie.digital", "mainnet.qie.digital"],
-            ["faucet", "qie.digital/faucet", "—"],
+            ["faucet", "qie.digital/faucet", "n/a"],
             ["launchpad", "deployed", "not deployed yet"],
             ["official dex", "none on this chain", "QIEdex (dex.qie.digital)"],
           ]}
@@ -94,33 +94,33 @@ export default function DocsPage() {
       <Section id="product" title="product surface">
         <ul className="list-disc space-y-2 pl-5">
           <li>
-            <Link className="text-accent" href="/">
+            <Link className="text-accent" href="/discover">
               discover
             </Link>{" "}
-            — launched tokens, sort by new / market cap / volume / graduated, live poll.
+            : launched tokens, sort by new / market cap / volume / graduated, live poll.
           </li>
           <li>
             <Link className="text-accent" href="/create">
               create
             </Link>{" "}
-            — image, name, ticker, socials, optional initial buy. Fee is priced on-chain from the
+            : image, name, ticker, socials, optional initial buy. Fee is priced on-chain from the
             oracle ($2.50 target).
           </li>
           <li>
             <Link className="text-accent" href="/swap">
               swap
             </Link>{" "}
-            — token list is fetched from official QIEdex factories on the selected network. Mainnet
+            : token list is fetched from official QIEdex factories on the selected network. Mainnet
             routes through the official router.
           </li>
           <li>
             <Link className="text-accent" href="/pools">
               pools
             </Link>{" "}
-            — add / remove liquidity and create pairs on the Elsewhere AMM (testnet deploy).
+            : add / remove liquidity and create pairs on the Elsewhere AMM (testnet deploy).
           </li>
           <li>
-            <code>/token/[address]</code> — bonding-curve progress, chart, buy/sell, trades, holders.
+            <code>/token/[address]</code>: bonding-curve progress, chart, buy/sell, trades, holders.
             The panel switches to AMM mode on graduation without a reload.
           </li>
         </ul>
@@ -136,7 +136,7 @@ export default function DocsPage() {
         </p>
         <ul className="mt-3 list-disc space-y-1 pl-5">
           <li>creation fee: $2.50 in native QIE (testnet feed set so this is 0.5 QIE)</li>
-          <li>bonding-curve fee: 1.000% — 0.425% creator / 0.575% protocol</li>
+          <li>bonding-curve fee: 1.000% (0.425% creator / 0.575% protocol)</li>
           <li>AMM fee: 0.30% LP + 0.40% creator (launchpad tokens) + 0.05% protocol</li>
         </ul>
       </Section>
@@ -145,7 +145,7 @@ export default function DocsPage() {
         <p>
           Mainnet uses the official QIE AggregatorV3 feed{" "}
           <code className="text-ink">{MAINNET_DEX.oracle}</code> (QIE/USD, 8 decimals). The factory
-          and bonding curve read it on-chain via <code>OracleLib</code> — stale or non-positive
+          and bonding curve read it on-chain via <code>OracleLib</code>. stale or non-positive
           answers revert. There is no official feed on testnet, so deploy ships a{" "}
           <code>TestnetPriceFeed</code> with the same ABI.
         </p>
@@ -207,7 +207,7 @@ export default function DocsPage() {
         <p>
           A Node indexer polls factory, curve, pair, and ERC-20 logs and writes aggregates
           (market cap, 24h volume, holders, candles) under <code>data/</code>. The UI reads{" "}
-          <code>/api/tokens</code>, <code>/api/pools</code>, <code>/api/stats</code> — it does not
+          <code>/api/tokens</code>, <code>/api/pools</code>, <code>/api/stats</code>. it does not
           scan the chain in the browser. On Netlify the filesystem is ephemeral, so discover may
           start empty after a cold start and refill as the function indexes again.
         </p>
@@ -233,13 +233,13 @@ PRIVATE_KEY=0x… forge script script/Deploy.s.sol:Deploy --rpc-url qie_testnet 
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>
             <code>NEXT_PUBLIC_LAUNCHPAD_FACTORY</code> / <code>WQIE</code> / <code>AMM_*</code> /{" "}
-            <code>FEE_ROUTER</code> / <code>QIE_USD_ORACLE</code> — testnet launchpad
+            <code>FEE_ROUTER</code> / <code>QIE_USD_ORACLE</code>: testnet launchpad
           </li>
           <li>
-            <code>NEXT_PUBLIC_MAINNET_*</code> — optional, after a mainnet launchpad deploy
+            <code>NEXT_PUBLIC_MAINNET_*</code>: optional, after a mainnet launchpad deploy
           </li>
           <li>
-            <code>PINATA_JWT</code> — optional IPFS pin for token images
+            <code>PINATA_JWT</code>: optional IPFS pin for token images
           </li>
         </ul>
       </Section>

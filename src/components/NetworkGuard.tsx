@@ -12,7 +12,7 @@ export function NetworkGuard() {
   if (chainId === network.id) return null;
   return (
     <div className="border-b border-line bg-[#1a1408] px-4 py-2 text-center text-xs text-accent">
-      wallet is on chain {chainId} — elsewhere is set to {network.name} ({network.id}).{" "}
+      wallet is on chain {chainId}. elsewhere is set to {network.name} ({network.id}).{" "}
       <span className="ml-2 inline-block">
         <AddChainButton />
       </span>

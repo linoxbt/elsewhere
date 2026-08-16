@@ -23,7 +23,7 @@ export function decodeOracleRound(
   };
 }
 
-/** Same formula as LaunchpadFactory.creationFeeQie() — $2.50 in 18-decimal USD. */
+/** Same formula as LaunchpadFactory.creationFeeQie(): $2.50 in 18-decimal USD. */
 export function creationFeeQieFromOracle(usd8: bigint): bigint {
   if (usd8 <= 0n) return 0n;
   const usd18 = 2_500_000_000_000_000_000n;

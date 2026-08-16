@@ -42,7 +42,7 @@ export default function DiscoverPage() {
                 ? formatUsd(oracle.usd, { subCent: true })
                 : stats?.qieUsd
                   ? formatUsd(stats.qieUsd, { subCent: true })
-                  : "—"
+                  : "n/a"
             }
           />
         </div>
