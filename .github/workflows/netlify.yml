@@ -24,6 +24,8 @@ jobs:
           NEXT_PUBLIC_AMM_ROUTER=${{ secrets.NEXT_PUBLIC_AMM_ROUTER }}
           NEXT_PUBLIC_FEE_ROUTER=${{ secrets.NEXT_PUBLIC_FEE_ROUTER }}
           NEXT_PUBLIC_QIE_USD_ORACLE=${{ secrets.NEXT_PUBLIC_QIE_USD_ORACLE }}
+          NEXT_PUBLIC_LENDING_POOL=${{ secrets.NEXT_PUBLIC_LENDING_POOL }}
+          NEXT_PUBLIC_BATCH_SENDER=${{ secrets.NEXT_PUBLIC_BATCH_SENDER }}
           EOF
       - run: npm ci
       - name: Deploy to Netlify
@@ -37,4 +39,6 @@ jobs:
           NEXT_PUBLIC_AMM_ROUTER: ${{ secrets.NEXT_PUBLIC_AMM_ROUTER }}
           NEXT_PUBLIC_FEE_ROUTER: ${{ secrets.NEXT_PUBLIC_FEE_ROUTER }}
           NEXT_PUBLIC_QIE_USD_ORACLE: ${{ secrets.NEXT_PUBLIC_QIE_USD_ORACLE }}
+          NEXT_PUBLIC_LENDING_POOL: ${{ secrets.NEXT_PUBLIC_LENDING_POOL }}
+          NEXT_PUBLIC_BATCH_SENDER: ${{ secrets.NEXT_PUBLIC_BATCH_SENDER }}
         run: npx --yes netlify-cli deploy --build --prod --message "gha ${GITHUB_SHA}"

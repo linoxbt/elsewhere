@@ -13,6 +13,8 @@ const TESTNET = {
   ammRouter: "0xC348694650Fd0E2b51197425e4Ad88aEe11b5d48",
   feeRouter: "0x998d51F77199A6a64837a648Ea9dB80F8F44607c",
   oracle: "0x7F3635B76790cF57A955E6576504ef17564FE924",
+  lendingPool: "0x9fC086D60443362D49E2124D2dAF8c5814113918",
+  batchSender: "0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4",
 };
 
 const MAINNET_DEX = {
@@ -46,8 +48,9 @@ export default function DocsPage() {
             MetaMask / Rabby / QIE Wallet.
           </li>
           <li>
-            Connect a wallet. The button opens Reown AppKit (injected browsers plus
-            WalletConnect QR) using <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code>.
+            Tap <strong className="text-ink">connect wallet</strong> — the official Reown modal
+            opens. Clicking a connected address opens the Reown account view (it does not
+            disconnect).
           </li>
           <li>
             Request test QIE via <strong className="text-ink">faucet</strong> (official drop is 2 QIE /
@@ -155,6 +158,8 @@ export default function DocsPage() {
             ["AMM router", TESTNET.ammRouter],
             ["Fee router", TESTNET.feeRouter],
             ["Testnet QIE/USD feed", TESTNET.oracle],
+            ["Lending pool", TESTNET.lendingPool],
+            ["Batch sender", TESTNET.batchSender],
           ]}
         />
       </Section>
@@ -175,8 +180,19 @@ export default function DocsPage() {
 
       <Section id="wallet" title="wallet">
         <p>
-          Connect opens Reown AppKit. Injected browsers (MetaMask, Rabby, QIE Wallet) and
-          WalletConnect QR both use <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code>.
+          Wallet connect is Reown AppKit only. The header button is the official{" "}
+          <code>appkit-button</code>: connect opens the Reown modal, a connected address opens
+          the account panel. The header QIE price always reads the official mainnet QIE/USD
+          oracle, including when the UI is on testnet.
+        </p>
+      </Section>
+
+      <Section id="suite" title="suite">
+        <p>
+          The header <strong className="text-ink">suite</strong> button lists every product:
+          discover, create, swap, pools, lend, send, and docs. Lend is a QIE money market
+          (supply QIE, post ERC-20 collateral priced via WQIE pairs, borrow QIE at 70% LTV).
+          Send supports a single recipient or an atomic batch.
         </p>
       </Section>
 

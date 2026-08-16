@@ -39,6 +39,8 @@ export const launchpadContracts = {
     ammRouter: (process.env.NEXT_PUBLIC_AMM_ROUTER ?? ZERO_ADDRESS) as `0x${string}`,
     feeRouter: (process.env.NEXT_PUBLIC_FEE_ROUTER ?? ZERO_ADDRESS) as `0x${string}`,
     qieUsdOracle: (process.env.NEXT_PUBLIC_QIE_USD_ORACLE ?? ZERO_ADDRESS) as `0x${string}`,
+    lendingPool: (process.env.NEXT_PUBLIC_LENDING_POOL ?? ZERO_ADDRESS) as `0x${string}`,
+    batchSender: (process.env.NEXT_PUBLIC_BATCH_SENDER ?? ZERO_ADDRESS) as `0x${string}`,
   },
   mainnet: {
     wqie: (process.env.NEXT_PUBLIC_MAINNET_WQIE ?? ZERO_ADDRESS) as `0x${string}`,
@@ -48,6 +50,8 @@ export const launchpadContracts = {
     ammRouter: (process.env.NEXT_PUBLIC_MAINNET_AMM_ROUTER ?? ZERO_ADDRESS) as `0x${string}`,
     feeRouter: (process.env.NEXT_PUBLIC_MAINNET_FEE_ROUTER ?? ZERO_ADDRESS) as `0x${string}`,
     qieUsdOracle: NETWORKS.mainnet.qieUsdOracle,
+    lendingPool: (process.env.NEXT_PUBLIC_MAINNET_LENDING_POOL ?? ZERO_ADDRESS) as `0x${string}`,
+    batchSender: (process.env.NEXT_PUBLIC_MAINNET_BATCH_SENDER ?? ZERO_ADDRESS) as `0x${string}`,
   },
 } as const;
 
@@ -59,9 +63,15 @@ export function isLaunchpadDeployed(key: NetworkKey) {
   return launchpadContracts[key].launchpadFactory !== ZERO_ADDRESS;
 }
 
+/** On-chain protocol feed (testnet is a local AggregatorV3 used for fees). */
 export function oracleFor(net: NetworkDef): `0x${string}` {
   if (net.key === "mainnet") return net.qieUsdOracle;
   return launchpadContracts.testnet.qieUsdOracle;
+}
+
+/** Always the official mainnet QIE/USD feed — used for the header price. */
+export function displayOracle(): `0x${string}` {
+  return NETWORKS.mainnet.qieUsdOracle;
 }
 
 export function explorerTx(net: NetworkDef, hash: string) {

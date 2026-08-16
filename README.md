@@ -25,6 +25,8 @@ The product name is **elsewhere**. The protocol still runs on QIE only (testnet 
 | `/token/[address]` | Curve progress, price chart, buy/sell, trades, holders |
 | `/swap` | Swap tokens listed from **official QIE pools** on the selected network |
 | `/pools` | Add / remove liquidity, create pairs |
+| `/lend` | Supply QIE, post collateral, borrow QIE |
+| `/send` | Send a single token or batch to many recipients |
 | `/docs` | Full protocol and contract reference |
 
 Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (testnet ↔ mainnet), live QIE/USD oracle on mainnet, testnet faucet entry point.
@@ -61,6 +63,8 @@ Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (tes
 | AMM router | [`0xC348694650Fd0E2b51197425e4Ad88aEe11b5d48`](https://testnet.qie.digital/address/0xC348694650Fd0E2b51197425e4Ad88aEe11b5d48) |
 | Fee router | [`0x998d51F77199A6a64837a648Ea9dB80F8F44607c`](https://testnet.qie.digital/address/0x998d51F77199A6a64837a648Ea9dB80F8F44607c) |
 | Testnet QIE/USD feed | [`0x7F3635B76790cF57A955E6576504ef17564FE924`](https://testnet.qie.digital/address/0x7F3635B76790cF57A955E6576504ef17564FE924) |
+| Lending pool | [`0x9fC086D60443362D49E2124D2dAF8c5814113918`](https://testnet.qie.digital/address/0x9fC086D60443362D49E2124D2dAF8c5814113918) |
+| Batch sender | [`0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4`](https://testnet.qie.digital/address/0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4) |
 
 Creation fee on testnet is **0.5 QIE** (feed set to $5 so the on-chain $2.50 fee is payable with a faucet drop). Graduation threshold remains **$25,000** USD market cap.
 
@@ -96,7 +100,7 @@ forge test --match-contract LiveOracleFork --fork-url https://rpc1mainnet.qie.di
 ## App stack
 
 - Next.js 15 (App Router) + TypeScript + Tailwind v4
-- wagmi + viem — injected wallets plus WalletConnect / Reown QR (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`)
+- wagmi + viem + Reown AppKit (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`) — official Reown modal only
 - Server indexer (`src/server/indexer.ts`) polls logs and serves `/api/tokens`, `/api/pools`, `/api/stats`
 - Official pool token list: `GET /api/official-tokens?chainId=1990|1983`
 - Testnet faucet eligibility: `POST /api/faucet`

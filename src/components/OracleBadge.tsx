@@ -1,30 +1,23 @@
 "use client";
 
-import { explorerAddress, oracleFor } from "@/lib/config";
+import { explorerAddress, displayOracle } from "@/lib/config";
 import { formatUsd } from "@/lib/format";
 import { formatOracleAge } from "@/lib/oracle";
-import { useOracle } from "@/hooks/useOracle";
-import { useNetwork } from "./NetworkProvider";
-import { ZERO_ADDRESS } from "@/lib/config";
+import { useDisplayOracle } from "@/hooks/useOracle";
+import { NETWORKS } from "@/lib/networks";
 
 export function OracleBadge() {
-  const { network } = useNetwork();
-  const oracleAddr = oracleFor(network);
-  const { data, isLoading, isError } = useOracle();
-  if (oracleAddr === ZERO_ADDRESS) {
-    return (
-      <span className="hidden font-mono text-[11px] text-muted lg:inline">
-        {network.key === "testnet" ? "testnet" : "oracle pending"}
-      </span>
-    );
-  }
+  const oracleAddr = displayOracle();
+  const { data, isLoading, isError } = useDisplayOracle();
+  const mainnet = NETWORKS.mainnet;
+
   if (isLoading && !data) {
-    return <span className="hidden font-mono text-[11px] text-muted lg:inline">oracle…</span>;
+    return <span className="hidden font-mono text-[11px] text-muted lg:inline">qie …</span>;
   }
   if (!data || isError) {
     return (
       <a
-        href={explorerAddress(network, oracleAddr)}
+        href={explorerAddress(mainnet, oracleAddr)}
         target="_blank"
         rel="noreferrer"
         className="hidden font-mono text-[11px] text-down lg:inline"
@@ -35,11 +28,11 @@ export function OracleBadge() {
   }
   return (
     <a
-      href={explorerAddress(network, oracleAddr)}
+      href={explorerAddress(mainnet, oracleAddr)}
       target="_blank"
       rel="noreferrer"
       className="hidden items-center gap-1.5 font-mono text-[11px] text-muted hover:text-ink lg:flex"
-      title={`QIE/USD ${oracleAddr}`}
+      title={`official QIE/USD · ${oracleAddr}`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-up" />
       <span>qie {formatUsd(data.usd, { subCent: true })}</span>

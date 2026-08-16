@@ -1,43 +1,26 @@
 "use client";
 
-import { useAppKit } from "@reown/appkit/react";
-import { useAccount } from "wagmi";
-import { shortAddress } from "@/lib/format";
-import { WALLETCONNECT_PROJECT_ID, hasWalletConnect } from "@/lib/wagmi";
-import { useNetwork } from "./NetworkProvider";
+import { useEffect, useState } from "react";
 
+/**
+ * Official Reown AppKit button. Clicking connect opens the Reown modal.
+ * Clicking a connected address opens the account view (does not disconnect).
+ */
 export function WalletButton() {
-  const { address, isConnected } = useAccount();
-  const { open } = useAppKit();
-  const { network } = useNetwork();
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
 
-  if (isConnected && address) {
+  if (!ready) {
     return (
-      <button
-        type="button"
-        onClick={() => void open({ view: "Account" })}
-        className="flex items-center gap-2 rounded-sm border border-line px-2.5 py-1 font-mono text-[11px] hover:bg-elev-2"
-        title={`${address} · reown ${WALLETCONNECT_PROJECT_ID.slice(0, 6)}… · click for account`}
-      >
-        <span className="hidden h-1.5 w-1.5 rounded-full bg-up sm:inline-block" />
-        <span>{shortAddress(address)}</span>
-        <span className="hidden text-faint sm:inline">{network.short}</span>
-      </button>
+      <span className="inline-flex h-9 min-w-[8.5rem] items-center justify-center rounded-sm border border-line bg-elev px-3 font-mono text-[11px] text-muted">
+        connect wallet
+      </span>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => void open({ view: "Connect" })}
-      className="rounded-sm border border-line bg-elev px-2.5 py-1 font-mono text-[11px] hover:bg-elev-2"
-      title={
-        hasWalletConnect
-          ? `reown project ${WALLETCONNECT_PROJECT_ID.slice(0, 6)}…`
-          : "reown project id missing"
-      }
-    >
-      connect wallet
-    </button>
+    <div className="reown-btn">
+      <appkit-button balance="hide" size="sm" label="connect wallet" />
+    </div>
   );
 }
