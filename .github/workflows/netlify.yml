@@ -28,6 +28,7 @@ jobs:
           NEXT_PUBLIC_BATCH_SENDER=${{ secrets.NEXT_PUBLIC_BATCH_SENDER }}
           NEXT_PUBLIC_MONEY_MARKET=${{ secrets.NEXT_PUBLIC_MONEY_MARKET }}
           NEXT_PUBLIC_ELSE_TOKEN=${{ secrets.NEXT_PUBLIC_ELSE_TOKEN }}
+          NEXT_PUBLIC_DCA=${{ secrets.NEXT_PUBLIC_DCA }}
           EOF
       - run: npm ci
       - name: Deploy to Netlify
@@ -45,4 +46,5 @@ jobs:
           NEXT_PUBLIC_BATCH_SENDER: ${{ secrets.NEXT_PUBLIC_BATCH_SENDER }}
           NEXT_PUBLIC_MONEY_MARKET: ${{ secrets.NEXT_PUBLIC_MONEY_MARKET }}
           NEXT_PUBLIC_ELSE_TOKEN: ${{ secrets.NEXT_PUBLIC_ELSE_TOKEN }}
+          NEXT_PUBLIC_DCA: ${{ secrets.NEXT_PUBLIC_DCA }}
         run: npx --yes netlify-cli deploy --build --prod --message "gha ${GITHUB_SHA}"

@@ -43,6 +43,7 @@ export const launchpadContracts = {
     batchSender: (process.env.NEXT_PUBLIC_BATCH_SENDER ?? ZERO_ADDRESS) as `0x${string}`,
     moneyMarket: (process.env.NEXT_PUBLIC_MONEY_MARKET ?? ZERO_ADDRESS) as `0x${string}`,
     elseToken: (process.env.NEXT_PUBLIC_ELSE_TOKEN ?? ZERO_ADDRESS) as `0x${string}`,
+    dca: (process.env.NEXT_PUBLIC_DCA ?? ZERO_ADDRESS) as `0x${string}`,
   },
   mainnet: {
     wqie: (process.env.NEXT_PUBLIC_MAINNET_WQIE ?? ZERO_ADDRESS) as `0x${string}`,
@@ -56,6 +57,7 @@ export const launchpadContracts = {
     batchSender: (process.env.NEXT_PUBLIC_MAINNET_BATCH_SENDER ?? ZERO_ADDRESS) as `0x${string}`,
     moneyMarket: (process.env.NEXT_PUBLIC_MAINNET_MONEY_MARKET ?? ZERO_ADDRESS) as `0x${string}`,
     elseToken: (process.env.NEXT_PUBLIC_MAINNET_ELSE_TOKEN ?? ZERO_ADDRESS) as `0x${string}`,
+    dca: (process.env.NEXT_PUBLIC_MAINNET_DCA ?? ZERO_ADDRESS) as `0x${string}`,
   },
 } as const;
 

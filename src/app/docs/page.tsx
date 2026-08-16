@@ -17,6 +17,7 @@ const TESTNET = {
   batchSender: "0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4",
   moneyMarket: "0xbE8B9Ae75BfA7FfDd79C4ae684f9DF18b7e8CBf9",
   elseToken: "0x870505B6e86eA2e5910409751aB1F13186825E93",
+  dca: "0xbE743B8c1B2dC68161F49b1a6Cc0Cd53C36BC23a",
 };
 
 const MAINNET_DEX = {
@@ -164,6 +165,7 @@ export default function DocsPage() {
             ["Batch sender", TESTNET.batchSender],
             ["Money market", TESTNET.moneyMarket],
             ["ELSE token", TESTNET.elseToken],
+            ["DCA", TESTNET.dca],
           ]}
         />
       </Section>
@@ -196,7 +198,8 @@ export default function DocsPage() {
           The header <strong className="text-ink">suite</strong> button lists every product:
           discover, create, swap, pools, lend, send, and docs. Lend is a QIE money market
           (supply QIE, post ERC-20 collateral priced via WQIE pairs, borrow QIE at 70% LTV).
-          Send supports a single recipient or an atomic batch.
+          Send supports a single recipient or an atomic batch. Swap includes a DCA tab
+          (1% executor fee, 5 minute min interval, 7 day max, cancel anytime).
         </p>
       </Section>
 

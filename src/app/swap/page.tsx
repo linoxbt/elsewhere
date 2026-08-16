@@ -13,9 +13,11 @@ import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "@/components/AddChainButton";
 import { TokenImage } from "@/components/TokenImage";
 import { useTokenCache } from "@/components/TokenCache";
+import { DcaPanel } from "@/components/DcaPanel";
 import { useOracle } from "@/hooks/useOracle";
 import { useNetwork } from "@/components/NetworkProvider";
 import type { TokenMeta } from "@/lib/types";
+import { cn } from "@/lib/format";
 
 function SwapInner() {
   const params = useSearchParams();
@@ -40,6 +42,7 @@ function SwapInner() {
   const [amount, setAmount] = useState("");
   const [slippage, setSlippage] = useState("1");
   const [open, setOpen] = useState<"in" | "out" | null>(null);
+  const [tab, setTab] = useState<"swap" | "dca">("swap");
   const [quote, setQuote] = useState<{ out: bigint; via: "qiedex" | "elsewhere" } | null>(null);
 
   useEffect(() => {
@@ -197,12 +200,37 @@ function SwapInner() {
   return (
     <div className="mx-auto max-w-md">
       <h1 className="font-mono text-2xl tracking-tight">swap</h1>
-      <p className="mt-1 mb-6 text-sm text-muted">
+      <p className="mt-1 mb-4 text-sm text-muted">
         {useOfficial
           ? "tokens from official qie pools on this network."
           : "qie testnet — official dex is mainnet-only. native QIE is listed; launchpad tokens appear after deploy."}
       </p>
 
+      <div className="mb-4 flex rounded-sm border border-line p-0.5">
+        {(["swap", "dca"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTab(t)}
+            className={cn(
+              "flex-1 rounded-sm py-1.5 font-mono text-[12px]",
+              tab === t ? "bg-elev-2 text-ink" : "text-muted hover:text-ink",
+            )}
+          >
+            {t === "dca" ? "DCA" : "swap"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "dca" ? (
+        <DcaPanel
+          catalog={catalog}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          onPickIn={() => setOpen("in")}
+          onPickOut={() => setOpen("out")}
+        />
+      ) : (
       <div className="space-y-2 rounded-sm border border-line bg-elev p-4">
         <TokenField label="from" token={tokenIn} amount={amount} onAmount={setAmount} onPick={() => setOpen("in")} />
         <div className="flex justify-center">
@@ -278,6 +306,7 @@ function SwapInner() {
           </button>
         )}
       </div>
+      )}
 
       {open && (
         <Picker
