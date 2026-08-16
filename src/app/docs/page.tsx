@@ -46,7 +46,8 @@ export default function DocsPage() {
             MetaMask / Rabby / QIE Wallet.
           </li>
           <li>
-            Connect an injected browser wallet. Elsewhere does not use WalletConnect or Reown.
+            Connect a wallet. The button opens Reown AppKit (injected browsers plus
+            WalletConnect QR) using <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code>.
           </li>
           <li>
             Request test QIE via <strong className="text-ink">faucet</strong> (official drop is 2 QIE /
@@ -174,8 +175,8 @@ export default function DocsPage() {
 
       <Section id="wallet" title="wallet">
         <p>
-          Connect lists injected browsers wallets (MetaMask, Rabby, QIE Wallet) and WalletConnect /
-          Reown QR using <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code>. No RainbowKit UI.
+          Connect opens Reown AppKit. Injected browsers (MetaMask, Rabby, QIE Wallet) and
+          WalletConnect QR both use <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code>.
         </p>
       </Section>
 

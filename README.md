@@ -4,7 +4,7 @@ Unified **token launchpad + AMM** on the [QIE](https://qie.digital) blockchain.
 
 Launch a token on a bonding curve, graduate automatically at **$25,000** market cap, and swap assets from **official QIEdex pools** on QIE mainnet. Testnet is the active launchpad deployment; mainnet swap already talks to the live QIEdex factory/router.
 
-The product name is **elsewhere**. The protocol still runs on QIE only (testnet chain `1983`, mainnet chain `1990`). There is no Tempo / WalletConnect / Reown dependency.
+The product name is **elsewhere**. The protocol still runs on QIE only (testnet chain `1983`, mainnet chain `1990`). Wallets connect through Reown AppKit (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`).
 
 ## Live
 
@@ -27,7 +27,7 @@ The product name is **elsewhere**. The protocol still runs on QIE only (testnet 
 | `/pools` | Add / remove liquidity, create pairs |
 | `/docs` | Full protocol and contract reference |
 
-Shared wallet (injected only), network switcher (testnet ↔ mainnet), live QIE/USD oracle on mainnet, testnet faucet entry point.
+Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (testnet ↔ mainnet), live QIE/USD oracle on mainnet, testnet faucet entry point.
 
 ## Networks
 

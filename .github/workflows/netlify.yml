@@ -14,6 +14,17 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Write Next public env
+        run: |
+          cat > .env.production <<EOF
+          NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=${{ secrets.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID }}
+          NEXT_PUBLIC_WQIE=${{ secrets.NEXT_PUBLIC_WQIE }}
+          NEXT_PUBLIC_LAUNCHPAD_FACTORY=${{ secrets.NEXT_PUBLIC_LAUNCHPAD_FACTORY }}
+          NEXT_PUBLIC_AMM_FACTORY=${{ secrets.NEXT_PUBLIC_AMM_FACTORY }}
+          NEXT_PUBLIC_AMM_ROUTER=${{ secrets.NEXT_PUBLIC_AMM_ROUTER }}
+          NEXT_PUBLIC_FEE_ROUTER=${{ secrets.NEXT_PUBLIC_FEE_ROUTER }}
+          NEXT_PUBLIC_QIE_USD_ORACLE=${{ secrets.NEXT_PUBLIC_QIE_USD_ORACLE }}
+          EOF
       - run: npm ci
       - name: Deploy to Netlify
         env:
