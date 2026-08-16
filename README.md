@@ -96,7 +96,7 @@ forge test --match-contract LiveOracleFork --fork-url https://rpc1mainnet.qie.di
 ## App stack
 
 - Next.js 15 (App Router) + TypeScript + Tailwind v4
-- wagmi + viem — **injected wallets only** (no RainbowKit, no WalletConnect / Reown)
+- wagmi + viem — injected wallets plus WalletConnect / Reown QR (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`)
 - Server indexer (`src/server/indexer.ts`) polls logs and serves `/api/tokens`, `/api/pools`, `/api/stats`
 - Official pool token list: `GET /api/official-tokens?chainId=1990|1983`
 - Testnet faucet eligibility: `POST /api/faucet`
@@ -142,7 +142,13 @@ On chain 1983 the script also deploys `TestnetPriceFeed`. On 1990 it binds the o
 
 ## Netlify
 
-`netlify.toml` builds with `@netlify/plugin-nextjs`. Set the `NEXT_PUBLIC_*` values in the Netlify UI or via `netlify env:set`. The on-disk indexer (`data/`) is ephemeral on serverless hosts — discover will refill after a cold start.
+Production: https://elsewhere-qie.netlify.app
+
+`netlify.toml` builds with `@netlify/plugin-nextjs`. Set the `NEXT_PUBLIC_*` values in the Netlify UI or via `netlify env:set`.
+
+Deploys run from **GitHub Actions** (`.github/workflows/netlify.yml`) so Netlify does not clone the GitHub repo itself. Automatic Netlify git builds are stopped (`stop_builds`) because the build image hit `Host key verification failed` cloning GitHub without the GitHub App.
+
+The on-disk indexer (`data/`) is ephemeral on serverless hosts — discover will refill after a cold start.
 
 ## Security notes
 

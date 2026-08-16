@@ -174,9 +174,8 @@ export default function DocsPage() {
 
       <Section id="wallet" title="wallet">
         <p>
-          Injected EIP-1193 providers only. No RainbowKit, no WalletConnect, no Reown project id.
-          If no wallet is detected the connect button tells you to install MetaMask, Rabby, or QIE
-          Wallet.
+          Connect lists injected browsers wallets (MetaMask, Rabby, QIE Wallet) and WalletConnect /
+          Reown QR using <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code>. No RainbowKit UI.
         </p>
       </Section>
 
