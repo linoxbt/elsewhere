@@ -86,7 +86,7 @@ export function SuiteMenu() {
             onClick={() => setOpen(false)}
           />
           <div className="fixed left-1/2 top-1/2 z-50 w-[min(22rem,calc(100vw-1.5rem))] -translate-x-1/2 -translate-y-1/2 rounded-sm border border-line bg-elev p-3 shadow-xl md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-[22rem] md:translate-x-0 md:translate-y-0">
-            <p className="mb-2 px-1 font-mono text-[10px] uppercase tracking-widest text-faint">
+            <p className="mb-2 px-1 font-mono text-[11px] uppercase tracking-widest text-faint">
               elsewhere suite
             </p>
             <div className="grid grid-cols-2 gap-1">
@@ -104,8 +104,8 @@ export function SuiteMenu() {
                   >
                     <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
                     <span className="min-w-0">
-                      <span className="block font-mono text-[12px] text-ink">{item.label}</span>
-                      <span className="block text-[10px] text-faint">{item.hint}</span>
+                      <span className="block font-mono text-[13px] text-ink">{item.label}</span>
+                      <span className="block text-[11px] text-faint">{item.hint}</span>
                     </span>
                   </Link>
                 );

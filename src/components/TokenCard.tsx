@@ -19,15 +19,15 @@ export function TokenCard({ token }: { token: TokenRecord }) {
           <div className="flex items-center gap-2">
             <div className="truncate text-sm font-medium">{token.name}</div>
             {token.graduated && (
-              <span className="shrink-0 rounded-sm border border-[#2a3324] bg-[#12180f] px-1.5 py-0.5 font-mono text-[10px] text-accent-2">
+              <span className="shrink-0 rounded-sm border border-[#2a3324] bg-[#12180f] px-1.5 py-0.5 font-mono text-[11px] text-accent-2">
                 graduated
               </span>
             )}
           </div>
-          <div className="font-mono text-[11px] uppercase text-muted">{token.symbol}</div>
+          <div className="font-mono text-[12px] uppercase text-muted">{token.symbol}</div>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
+      <div className="grid grid-cols-2 gap-2 font-mono text-[12px]">
         <div>
           <div className="text-faint">mcap</div>
           <div>{formatUsd(token.marketCapUsd, { compact: true })}</div>
@@ -38,7 +38,7 @@ export function TokenCard({ token }: { token: TokenRecord }) {
         </div>
       </div>
       <div>
-        <div className="mb-1 flex justify-between font-mono text-[10px] text-muted">
+        <div className="mb-1 flex justify-between font-mono text-[11px] text-muted">
           <span>bonding curve</span>
           <span>
             {token.graduated ? "100%" : `${pct}%`} / {formatUsd(PROTOCOL.graduationMarketCapUsd, { compact: true })}

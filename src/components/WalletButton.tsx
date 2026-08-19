@@ -22,7 +22,7 @@ export function WalletButton() {
 
   if (!ready) {
     return (
-      <span className="inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-sm border border-line bg-elev px-2.5 font-mono text-[11px] text-muted sm:h-9 sm:px-3">
+      <span className="inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-sm border border-line bg-elev px-2.5 font-mono text-[12px] text-muted sm:h-9 sm:px-3">
         {label}
       </span>
     );

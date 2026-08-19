@@ -188,7 +188,7 @@ export function TradePanel({ token }: { token: TokenRecord }) {
             </button>
           ))}
         </div>
-        <div className="font-mono text-[10px] text-muted">
+        <div className="font-mono text-[11px] text-muted">
           {graduated ? "amm" : "bonding curve"}
         </div>
       </div>
@@ -196,13 +196,13 @@ export function TradePanel({ token }: { token: TokenRecord }) {
       {graduated && (
         <Link
           href={`/swap?out=${token.address}`}
-          className="mb-3 block font-mono text-[11px] text-accent hover:underline"
+          className="mb-3 block font-mono text-[12px] text-accent hover:underline"
         >
           graduated ✓ trading on the amm →
         </Link>
       )}
 
-      <label className="mb-1 block font-mono text-[11px] text-muted">
+      <label className="mb-1 block font-mono text-[12px] text-muted">
         {side === "buy" ? "qie in" : `${token.symbol} in`}
       </label>
       <input
@@ -212,7 +212,7 @@ export function TradePanel({ token }: { token: TokenRecord }) {
         className="mb-3 w-full rounded-sm border border-line bg-bg px-3 py-2 font-mono text-sm outline-none"
       />
 
-      <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-muted">
+      <div className="mb-3 flex items-center justify-between font-mono text-[12px] text-muted">
         <span>slippage</span>
         <span className="flex items-center gap-1">
           <input
@@ -225,7 +225,7 @@ export function TradePanel({ token }: { token: TokenRecord }) {
       </div>
 
       {quote && (
-        <div className="mb-3 space-y-1 rounded-sm border border-line bg-bg p-3 font-mono text-[11px] text-muted">
+        <div className="mb-3 space-y-1 rounded-sm border border-line bg-bg p-3 font-mono text-[12px] text-muted">
           <Row
             k="you receive"
             v={`${formatAmount(quote.out)} ${side === "buy" ? token.symbol : "QIE"}`}
@@ -262,7 +262,7 @@ export function TradePanel({ token }: { token: TokenRecord }) {
         </button>
       )}
 
-      <p className="mt-3 font-mono text-[10px] leading-relaxed text-faint">
+      <p className="mt-3 font-mono text-[11px] leading-relaxed text-faint">
         {graduated
           ? `post-graduation: ${PROTOCOL.ammCreatorFeeBps / 1000}% creator + ${PROTOCOL.ammProtocolFeeBps / 1000}% protocol + 0.30% lp, via the amm router.`
           : `pre-graduation: 1% total (${PROTOCOL.bondingCreatorFeeBps / 1000}% creator / ${PROTOCOL.bondingProtocolFeeBps / 1000}% protocol) against the bonding curve, quoted in qie.`}

@@ -31,7 +31,7 @@ export default function DiscoverPage() {
             launch tokens on a bonding curve. at $25,000 market cap they graduate to the amm. swap is powered by official qie pools.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3 font-mono text-[11px] text-muted sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 font-mono text-[12px] text-muted sm:grid-cols-4">
           <Stat k="tokens" v={String(stats?.tokens ?? 0)} />
           <Stat k="graduated" v={String(stats?.graduated ?? 0)} />
           <Stat k="24h vol" v={formatUsd(stats?.volume24hUsd, { compact: true })} />
@@ -72,7 +72,7 @@ export default function DiscoverPage() {
         />
       </div>
 
-      <p className="mb-5 font-mono text-[11px] text-muted">
+      <p className="mb-5 font-mono text-[12px] text-muted">
         {oracleReady ? (
           <>
             usd figures use the on-chain QIE/USD oracle{" "}
@@ -88,7 +88,7 @@ export default function DiscoverPage() {
       </p>
 
       {!isLaunchpadDeployed(network.key) && (
-        <div className="mb-5 rounded-sm border border-line bg-elev px-3 py-2 font-mono text-[11px] text-muted">
+        <div className="mb-5 rounded-sm border border-line bg-elev px-3 py-2 font-mono text-[12px] text-muted">
           launchpad not deployed on {network.short}. swap uses official qie pools on mainnet.
         </div>
       )}

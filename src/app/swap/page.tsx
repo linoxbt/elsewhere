@@ -213,7 +213,7 @@ function SwapInner() {
             type="button"
             onClick={() => setTab(t)}
             className={cn(
-              "flex-1 rounded-sm py-1.5 font-mono text-[12px]",
+              "flex-1 rounded-sm py-1.5 font-mono text-[13px]",
               tab === t ? "bg-elev-2 text-ink" : "text-muted hover:text-ink",
             )}
           >
@@ -254,15 +254,15 @@ function SwapInner() {
           onPick={() => setOpen("out")}
         />
 
-        <div className="flex items-center justify-between pt-2 font-mono text-[11px] text-muted">
+        <div className="flex items-center justify-between pt-2 font-mono text-[12px] text-muted">
           <span>route</span>
           <span className="text-ink">{quote?.via === "qiedex" ? "official qie pool" : useOfficial ? "official qie pool" : "elsewhere"}</span>
         </div>
-        <div className="flex items-center justify-between font-mono text-[11px] text-muted">
+        <div className="flex items-center justify-between font-mono text-[12px] text-muted">
           <span>network</span>
           <span className="text-ink">{network.name}</span>
         </div>
-        <div className="flex items-center justify-between font-mono text-[11px] text-muted">
+        <div className="flex items-center justify-between font-mono text-[12px] text-muted">
           <span>slippage</span>
           <span>
             <input
@@ -274,7 +274,7 @@ function SwapInner() {
           </span>
         </div>
         {quote && (
-          <div className="space-y-1 border-t border-line pt-2 font-mono text-[11px] text-muted">
+          <div className="space-y-1 border-t border-line pt-2 font-mono text-[12px] text-muted">
             <div className="flex justify-between">
               <span>min received</span>
               <span className="text-ink">
@@ -365,7 +365,7 @@ function TokenField({
 }) {
   return (
     <div className="rounded-sm border border-line bg-bg p-3">
-      <div className="mb-1 font-mono text-[10px] text-muted">{label}</div>
+      <div className="mb-1 font-mono text-[11px] text-muted">{label}</div>
       <div className="flex items-center gap-2">
         <input
           value={amount}
@@ -429,12 +429,12 @@ function Picker({
               <TokenImage src={t.image} address={t.address || zeroAddress} symbol={t.symbol} size={22} />
               <div>
                 <div className="text-sm">{t.symbol}</div>
-                <div className="font-mono text-[10px] text-muted">{t.name}</div>
+                <div className="font-mono text-[11px] text-muted">{t.name}</div>
               </div>
             </button>
           ))}
           {filtered.length === 0 && (
-            <div className="px-2 py-6 text-center font-mono text-[11px] text-muted">no tokens on this network</div>
+            <div className="px-2 py-6 text-center font-mono text-[12px] text-muted">no tokens on this network</div>
           )}
         </div>
       </div>

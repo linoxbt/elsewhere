@@ -237,14 +237,14 @@ export default function SendPage() {
       </div>
 
       <div className="mt-5 space-y-4 rounded-sm border border-line bg-elev p-4">
-        <label className="block font-mono text-[11px] text-faint">token</label>
+        <label className="block font-mono text-[12px] text-faint">token</label>
         <div className="flex flex-wrap gap-1">
           {catalog.slice(0, 8).map((t) => (
             <button
               key={t.address + t.symbol}
               type="button"
               onClick={() => setToken(t)}
-              className={`flex items-center gap-1.5 rounded-sm border px-2 py-1 font-mono text-[11px] ${
+              className={`flex items-center gap-1.5 rounded-sm border px-2 py-1 font-mono text-[12px] ${
                 token.address === t.address && token.symbol === t.symbol
                   ? "border-line-strong bg-elev-2 text-ink"
                   : "border-line text-muted"
@@ -260,17 +260,17 @@ export default function SendPage() {
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
             placeholder="paste token address"
-            className="min-w-0 flex-1 rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[12px]"
+            className="min-w-0 flex-1 rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[13px]"
           />
           <button
             type="button"
             onClick={() => void loadCustom()}
-            className="rounded-sm border border-line px-2 py-1 font-mono text-[11px] hover:bg-elev-2"
+            className="rounded-sm border border-line px-2 py-1 font-mono text-[12px] hover:bg-elev-2"
           >
             load
           </button>
         </div>
-        <p className="font-mono text-[11px] text-faint">
+        <p className="font-mono text-[12px] text-faint">
           balance {formatAmount(balance, token.decimals)} {token.symbol}
         </p>
 
@@ -282,7 +282,7 @@ export default function SendPage() {
                 setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, to: e.target.value } : r)))
               }
               placeholder="0x recipient"
-              className="rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[12px]"
+              className="rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[13px]"
             />
             <input
               value={row.amount}
@@ -290,13 +290,13 @@ export default function SendPage() {
                 setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)))
               }
               placeholder="amount"
-              className="rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[12px]"
+              className="rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[13px]"
             />
             {mode === "batch" && (
               <button
                 type="button"
                 onClick={() => setRows((prev) => prev.filter((_, idx) => idx !== i))}
-                className="font-mono text-[11px] text-faint hover:text-down"
+                className="font-mono text-[12px] text-faint hover:text-down"
               >
                 remove
               </button>
@@ -309,19 +309,19 @@ export default function SendPage() {
             <button
               type="button"
               onClick={() => setRows((prev) => [...prev, emptyRow()])}
-              className="font-mono text-[11px] text-accent"
+              className="font-mono text-[12px] text-accent"
             >
               + recipient
             </button>
             <textarea
               placeholder="paste csv: address,amount"
-              className="h-20 w-full rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[11px]"
+              className="h-20 w-full rounded-sm border border-line bg-bg px-2 py-1.5 font-mono text-[12px]"
               onChange={(e) => applyCsv(e.target.value)}
             />
           </>
         )}
 
-        <div className="flex items-center justify-between font-mono text-[11px] text-muted">
+        <div className="flex items-center justify-between font-mono text-[12px] text-muted">
           <span>
             {valid.length} recipient{valid.length === 1 ? "" : "s"} · {formatAmount(total, token.decimals)}{" "}
             {token.symbol}
@@ -330,7 +330,7 @@ export default function SendPage() {
         </div>
 
         {!isConnected ? (
-          <p className="font-mono text-[12px] text-muted">connect a wallet to send</p>
+          <p className="font-mono text-[13px] text-muted">connect a wallet to send</p>
         ) : wrong ? (
           <AddChainButton />
         ) : (
@@ -338,7 +338,7 @@ export default function SendPage() {
             type="button"
             disabled={!canSend}
             onClick={() => void send()}
-            className="w-full rounded-sm border border-line bg-elev-2 py-2 font-mono text-[12px] hover:border-line-strong disabled:opacity-40"
+            className="w-full rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] hover:border-line-strong disabled:opacity-40"
           >
             {isPending ? "confirm in wallet…" : mode === "batch" ? "send batch" : "send"}
           </button>

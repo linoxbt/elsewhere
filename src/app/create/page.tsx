@@ -200,7 +200,7 @@ export default function CreatePage() {
         <Field label="name" value={name} onChange={setName} required max={32} />
         <Field label="ticker" value={symbol} onChange={(v) => setSymbol(v.toUpperCase())} required max={16} />
         <label className="block">
-          <span className="mb-1 block font-mono text-[11px] text-muted">description</span>
+          <span className="mb-1 block font-mono text-[12px] text-muted">description</span>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -218,7 +218,7 @@ export default function CreatePage() {
           placeholder="0"
         />
 
-        <div className="space-y-2 rounded-sm border border-line bg-elev p-4 font-mono text-[11px] leading-relaxed text-muted">
+        <div className="space-y-2 rounded-sm border border-line bg-elev p-4 font-mono text-[12px] leading-relaxed text-muted">
           <div className="text-ink">before you launch</div>
           <p>
             creation fee: {feeQie ? formatAmount(feeQie) : oracleError ? "oracle unavailable" : "reading oracle…"}{" "}
@@ -288,7 +288,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block font-mono text-[11px] text-muted">{label}</span>
+      <span className="mb-1 block font-mono text-[12px] text-muted">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}

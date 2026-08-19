@@ -30,9 +30,9 @@ const MAINNET_DEX = {
 
 export default function DocsPage() {
   return (
-    <article className="prose-invert mx-auto max-w-3xl space-y-10 font-mono text-[13px] leading-relaxed text-muted">
+    <article className="prose-invert mx-auto max-w-3xl space-y-10 font-mono text-[14px] leading-relaxed text-muted">
       <header className="space-y-2">
-        <p className="text-[11px] uppercase tracking-widest text-faint">elsewhere / documentation</p>
+        <p className="text-[12px] uppercase tracking-widest text-faint">elsewhere / documentation</p>
         <h1 className="text-3xl tracking-tight text-ink">docs</h1>
         <p>
           Elsewhere is a unified token launchpad and AMM on the QIE blockchain. Launch on a bonding
@@ -214,13 +214,13 @@ export default function DocsPage() {
       </Section>
 
       <Section id="run" title="run locally">
-        <pre className="overflow-x-auto rounded-sm border border-line bg-elev p-3 text-[12px] text-ink">{`git clone <this-repo>
+        <pre className="overflow-x-auto rounded-sm border border-line bg-elev p-3 text-[13px] text-ink">{`git clone <this-repo>
 cd elsewhere
 cp .env.example .env.local
 npm install
 npm run dev`}</pre>
         <p className="mt-3">Contracts (Foundry):</p>
-        <pre className="overflow-x-auto rounded-sm border border-line bg-elev p-3 text-[12px] text-ink">{`cd contracts
+        <pre className="overflow-x-auto rounded-sm border border-line bg-elev p-3 text-[13px] text-ink">{`cd contracts
 forge test --no-match-contract LiveOracleFork -vv
 PRIVATE_KEY=0x… forge script script/Deploy.s.sol:Deploy --rpc-url qie_testnet --broadcast`}</pre>
       </Section>
@@ -272,7 +272,7 @@ function Table({ rows }: { rows: string[][] }) {
   const [head, ...body] = rows;
   return (
     <div className="overflow-x-auto rounded-sm border border-line">
-      <table className="w-full text-left text-[12px]">
+      <table className="w-full text-left text-[13px]">
         <thead>
           <tr className="text-faint">
             {head.map((c) => (
@@ -307,7 +307,7 @@ function AddrTable({
 }) {
   return (
     <div className="overflow-x-auto rounded-sm border border-line">
-      <table className="w-full text-left text-[12px]">
+      <table className="w-full text-left text-[13px]">
         <tbody>
           {rows.map(([k, addr]) => (
             <tr key={addr} className="border-t border-line first:border-0">

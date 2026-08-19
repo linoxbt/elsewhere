@@ -41,7 +41,7 @@ export function AddChainButton({ compact = false }: { compact?: boolean }) {
       type="button"
       onClick={add}
       disabled={isPending}
-      className="mono rounded-sm border border-line px-2.5 py-1 text-[11px] uppercase tracking-wide text-accent hover:bg-elev-2"
+      className="mono rounded-sm border border-line px-2.5 py-1 text-[12px] uppercase tracking-wide text-accent hover:bg-elev-2"
     >
       {compact ? `+ ${network.short}` : isConnected ? `switch to ${network.short}` : `+ add ${network.short}`}
     </button>

@@ -49,6 +49,7 @@ createAppKit({
   themeVariables: {
     "--w3m-accent": "#c4b5a0",
     "--w3m-border-radius-master": "2px",
+    "--w3m-font-size-master": "11px",
     "--w3m-font-family": "ui-monospace, SFMono-Regular, Menlo, monospace",
   },
   features: {

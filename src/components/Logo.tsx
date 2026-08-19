@@ -12,7 +12,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
         className="h-8 w-8 rounded-sm object-cover sm:h-10 sm:w-10"
       />
       {!compact && (
-        <span className="truncate font-mono text-[15px] tracking-tight sm:text-[18px]">elsewhere</span>
+        <span className="truncate font-mono text-[16px] tracking-tight sm:text-[19px]">elsewhere</span>
       )}
     </Link>
   );

@@ -30,29 +30,29 @@ export default function LandingPage() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_420px_at_70%_-80px,rgba(196,181,160,0.12),transparent_60%)]" />
         <div className="relative mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:gap-8 lg:gap-12">
           <div className="min-w-0 lp-fade">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-faint sm:text-[11px]">
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-faint sm:text-[12px]">
               launchpad · amm · money market
             </p>
-            <h1 className="mt-2 font-mono text-[22px] leading-[1.15] tracking-tight text-ink sm:mt-4 sm:text-4xl lg:text-6xl">
+            <h1 className="mt-2 font-mono text-[23px] leading-[1.15] tracking-tight text-ink sm:mt-4 sm:text-4xl lg:text-6xl">
               Launch, trade, and lend on QIE in one place.
             </h1>
-            <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-muted sm:mt-5 sm:text-base lg:text-lg">
+            <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted sm:mt-5 sm:text-base lg:text-lg">
               Elsewhere is the unified token launchpad and AMM for QIE. Bonding-curve launches
               graduate into live pools. Swap reads official QIEdex liquidity. Lend QIE, borrow ELSE.
             </p>
             <div className="mt-5 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
-              <Link href="/discover" className="btn-cta rounded-sm px-3 py-2 font-mono text-[11px] sm:px-4 sm:text-[12px]">
+              <Link href="/discover" className="btn-cta rounded-sm px-3 py-2 font-mono text-[12px] sm:px-4 sm:text-[13px]">
                 open app
               </Link>
               <Link
                 href="/create"
-                className="rounded-sm border border-line px-3 py-2 font-mono text-[11px] hover:bg-elev-2 sm:px-4 sm:text-[12px]"
+                className="rounded-sm border border-line px-3 py-2 font-mono text-[12px] hover:bg-elev-2 sm:px-4 sm:text-[13px]"
               >
                 create a token
               </Link>
               <Link
                 href="/docs"
-                className="rounded-sm border border-line px-3 py-2 font-mono text-[11px] text-muted hover:text-ink sm:px-4 sm:text-[12px]"
+                className="rounded-sm border border-line px-3 py-2 font-mono text-[12px] text-muted hover:text-ink sm:px-4 sm:text-[13px]"
               >
                 read the docs
               </Link>
@@ -78,9 +78,9 @@ export default function LandingPage() {
               key={s.k}
               className={`lp-fade lp-d${i + 1} rounded-sm border border-line bg-elev px-3 py-3 sm:px-4 sm:py-4`}
             >
-              <p className="font-mono text-[9px] uppercase tracking-widest text-faint sm:text-[10px]">{s.k}</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-faint sm:text-[11px]">{s.k}</p>
               <p className="mt-1 font-mono text-base text-ink sm:text-xl">{s.v}</p>
-              <p className="mt-1 text-[11px] text-muted sm:text-[12px]">{s.d}</p>
+              <p className="mt-1 text-[12px] text-muted sm:text-[13px]">{s.d}</p>
             </div>
           ))}
         </div>
@@ -88,7 +88,7 @@ export default function LandingPage() {
 
       <section className="border-b border-line px-3 py-12 sm:px-4 sm:py-16">
         <div className="mx-auto max-w-6xl">
-          <p className="lp-fade font-mono text-[11px] uppercase tracking-widest text-faint">suite</p>
+          <p className="lp-fade font-mono text-[12px] uppercase tracking-widest text-faint">suite</p>
           <h2 className="lp-fade lp-d1 mt-2 font-mono text-xl tracking-tight sm:text-2xl">Everything in the product</h2>
           <div className="mt-6 grid gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
             {products.map((p, i) => (
@@ -97,9 +97,9 @@ export default function LandingPage() {
                 href={p.href}
                 className={`lp-card lp-fade lp-d${(i % 4) + 1} group rounded-sm border border-line bg-elev p-4 hover:border-line-strong hover:bg-elev-2`}
               >
-                <p className="font-mono text-[13px] text-ink">{p.title}</p>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted">{p.copy}</p>
-                <p className="mt-3 font-mono text-[11px] text-accent group-hover:underline">{p.href}</p>
+                <p className="font-mono text-[14px] text-ink">{p.title}</p>
+                <p className="mt-2 text-[14px] leading-relaxed text-muted">{p.copy}</p>
+                <p className="mt-3 font-mono text-[12px] text-accent group-hover:underline">{p.href}</p>
               </Link>
             ))}
           </div>
@@ -108,14 +108,14 @@ export default function LandingPage() {
 
       <section className="border-b border-line px-3 py-12 sm:px-4 sm:py-16">
         <div className="mx-auto max-w-6xl">
-          <p className="lp-fade font-mono text-[11px] uppercase tracking-widest text-faint">how it works</p>
+          <p className="lp-fade font-mono text-[12px] uppercase tracking-widest text-faint">how it works</p>
           <h2 className="lp-fade lp-d1 mt-2 font-mono text-xl tracking-tight sm:text-2xl">Four steps, one stack</h2>
           <div className="mt-6 grid gap-2 sm:mt-8 sm:grid-cols-2 sm:gap-3 md:grid-cols-4">
             {steps.map((s, i) => (
               <div key={s.n} className={`lp-card lp-fade lp-d${i + 1} rounded-sm border border-line p-4`}>
-                <p className="font-mono text-[11px] text-faint">{s.n}</p>
-                <p className="mt-2 font-mono text-[14px] text-ink">{s.t}</p>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted">{s.d}</p>
+                <p className="font-mono text-[12px] text-faint">{s.n}</p>
+                <p className="mt-2 font-mono text-[15px] text-ink">{s.t}</p>
+                <p className="mt-2 text-[14px] leading-relaxed text-muted">{s.d}</p>
               </div>
             ))}
           </div>
@@ -131,7 +131,7 @@ export default function LandingPage() {
               Connect with Reown and pick a chain.
             </p>
           </div>
-          <Link href="/discover" className="btn-cta shrink-0 rounded-sm px-4 py-2 font-mono text-[12px]">
+          <Link href="/discover" className="btn-cta shrink-0 rounded-sm px-4 py-2 font-mono text-[13px]">
             enter elsewhere
           </Link>
         </div>

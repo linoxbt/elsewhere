@@ -46,7 +46,7 @@ export function FaucetButton() {
       type="button"
       onClick={() => void request()}
       disabled={busy}
-      className="hidden rounded-sm border border-line px-2 py-0.5 font-mono text-[11px] text-accent hover:bg-elev-2 md:inline"
+      className="hidden rounded-sm border border-line px-2 py-0.5 font-mono text-[12px] text-accent hover:bg-elev-2 md:inline"
     >
       {busy ? "requesting…" : "faucet"}
     </button>

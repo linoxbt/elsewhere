@@ -18,7 +18,7 @@ export function NetworkSwitcher() {
             type="button"
             onClick={() => void setNetwork(k)}
             className={cn(
-              "flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-sm border px-2 py-1.5 font-mono text-[11px]",
+              "flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-sm border px-2 py-1.5 font-mono text-[12px]",
               active ? "border-line-strong bg-elev-2 text-ink" : "border-line text-muted hover:bg-elev-2 hover:text-ink",
             )}
             aria-pressed={active}

@@ -117,7 +117,7 @@ export default function LendPage() {
       </div>
 
       {!deployed && (
-        <div className="rounded-sm border border-line bg-elev p-4 font-mono text-[12px] text-muted">
+        <div className="rounded-sm border border-line bg-elev p-4 font-mono text-[13px] text-muted">
           money market is not deployed on {network.name} yet.
         </div>
       )}
@@ -125,8 +125,8 @@ export default function LendPage() {
       {deployed && (
         <>
           <div className="mb-6 overflow-x-auto rounded-sm border border-line">
-            <table className="w-full text-left font-mono text-[12px]">
-              <thead className="text-[11px] text-faint">
+            <table className="w-full text-left font-mono text-[13px]">
+              <thead className="text-[12px] text-faint">
                 <tr>
                   <th className="px-3 py-2 font-normal">market</th>
                   <th className="px-3 py-2 font-normal">available</th>
@@ -160,7 +160,7 @@ export default function LendPage() {
           <div className="mb-3 h-1.5 overflow-hidden rounded-sm bg-elev-2">
             <div className="h-full bg-accent" style={{ width: `${Math.min(100, Number(utilBps) / 100)}%` }} />
           </div>
-          <p className="mb-6 font-mono text-[11px] text-faint">
+          <p className="mb-6 font-mono text-[12px] text-faint">
             ELSE utilization { (Number(utilBps) / 100).toFixed(1) }% · price {formatAmount(priceQie)} QIE
             each · listed {listed ? "yes" : "no"}
           </p>
@@ -194,11 +194,11 @@ export default function LendPage() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder={tab === "supply" ? "QIE amount" : "ELSE amount"}
-              className="mb-3 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[13px]"
+              className="mb-3 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[14px]"
             />
 
             {!isConnected ? (
-              <p className="font-mono text-[12px] text-muted">connect a wallet first</p>
+              <p className="font-mono text-[13px] text-muted">connect a wallet first</p>
             ) : wrong ? (
               <AddChainButton />
             ) : tab === "supply" ? (
@@ -216,7 +216,7 @@ export default function LendPage() {
                       }),
                     )
                   }
-                  className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[12px] disabled:opacity-40"
+                  className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] disabled:opacity-40"
                 >
                   supply QIE
                 </button>
@@ -233,7 +233,7 @@ export default function LendPage() {
                       }),
                     )
                   }
-                  className="flex-1 rounded-sm border border-line py-2 font-mono text-[12px] disabled:opacity-40"
+                  className="flex-1 rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
                 >
                   withdraw
                 </button>
@@ -253,7 +253,7 @@ export default function LendPage() {
                       }),
                     )
                   }
-                  className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[12px] disabled:opacity-40"
+                  className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] disabled:opacity-40"
                 >
                   borrow ELSE
                 </button>
@@ -288,14 +288,14 @@ export default function LendPage() {
                       );
                     })()
                   }
-                  className="flex-1 rounded-sm border border-line py-2 font-mono text-[12px] disabled:opacity-40"
+                  className="flex-1 rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
                 >
                   repay ELSE
                 </button>
               </div>
             )}
             {tab === "borrow" && supplied === 0n && (
-              <p className="mt-3 font-mono text-[11px] text-muted">supply QIE first. that is the collateral for ELSE.</p>
+              <p className="mt-3 font-mono text-[12px] text-muted">supply QIE first. that is the collateral for ELSE.</p>
             )}
           </div>
         </>
@@ -307,9 +307,9 @@ export default function LendPage() {
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-sm border border-line bg-elev p-3">
-      <p className="font-mono text-[10px] uppercase tracking-widest text-faint">{label}</p>
-      <p className="mt-1 font-mono text-[13px] text-ink">{value}</p>
-      {sub && <p className="mt-0.5 font-mono text-[10px] text-faint">{sub}</p>}
+      <p className="font-mono text-[11px] uppercase tracking-widest text-faint">{label}</p>
+      <p className="mt-1 font-mono text-[14px] text-ink">{value}</p>
+      {sub && <p className="mt-0.5 font-mono text-[11px] text-faint">{sub}</p>}
     </div>
   );
 }

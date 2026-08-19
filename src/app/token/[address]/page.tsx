@@ -75,11 +75,11 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
               <h1 className="truncate font-mono text-xl tracking-tight sm:text-2xl">{token.name}</h1>
               <span className="font-mono text-xs uppercase text-muted">${token.symbol}</span>
               {token.graduated ? (
-                <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-accent-2">
+                <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[11px] text-accent-2">
                   graduated
                 </span>
               ) : (
-                <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-accent">
+                <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[11px] text-accent">
                   bonding
                 </span>
               )}
@@ -91,7 +91,7 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
                 href={explorerAddress(network, token.address)}
                 target="_blank"
                 rel="noreferrer"
-                className="font-mono text-[11px] text-accent"
+                className="font-mono text-[12px] text-accent"
               >
                 explorer
               </a>
@@ -100,13 +100,13 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
                   href={explorerAddress(network, token.curve)}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-mono text-[11px] text-muted"
+                  className="font-mono text-[12px] text-muted"
                 >
                   curve
                 </a>
               )}
             </div>
-            <div className="mt-2 flex flex-wrap gap-3 font-mono text-[11px] text-accent">
+            <div className="mt-2 flex flex-wrap gap-3 font-mono text-[12px] text-accent">
               {token.twitter && (
                 <a href={token.twitter} target="_blank" rel="noreferrer">
                   twitter
@@ -141,7 +141,7 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
             </div>
           ) : (
             <div>
-              <div className="mb-1 flex justify-between font-mono text-[11px] text-muted">
+              <div className="mb-1 flex justify-between font-mono text-[12px] text-muted">
                 <span>bonding curve → ${PROTOCOL.graduationMarketCapUsd.toLocaleString()} mcap</span>
                 <span>
                   {formatUsd(token.marketCapUsd, { compact: true })} · {pct}%
@@ -154,7 +154,7 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-2 font-mono text-[11px] sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 font-mono text-[12px] sm:grid-cols-4">
           <Kpi k="price" v={formatUsd(token.priceUsd, { subCent: true })} />
           <Kpi k="market cap" v={formatUsd(token.marketCapUsd, { compact: true })} />
           <Kpi k="24h volume" v={formatUsd(token.volume24hUsd, { compact: true })} />
@@ -166,7 +166,7 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
         <section>
           <h2 className="mb-2 font-mono text-xs text-muted">trades</h2>
           <div className="overflow-x-auto rounded-sm border border-line">
-            <table className="w-full text-left font-mono text-[11px]">
+            <table className="w-full text-left font-mono text-[12px]">
               <thead className="text-faint">
                 <tr>
                   <th className="px-3 py-2 font-normal">time</th>
@@ -212,7 +212,7 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
             {holders.map((h) => (
               <div
                 key={h.address}
-                className="flex items-center justify-between border-b border-line px-3 py-2 font-mono text-[11px] last:border-0"
+                className="flex items-center justify-between border-b border-line px-3 py-2 font-mono text-[12px] last:border-0"
               >
                 <CopyAddress address={h.address} />
                 <span>
@@ -221,7 +221,7 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
               </div>
             ))}
             {holders.length === 0 && (
-              <div className="px-3 py-6 text-center font-mono text-[11px] text-muted">no holders indexed</div>
+              <div className="px-3 py-6 text-center font-mono text-[12px] text-muted">no holders indexed</div>
             )}
           </div>
         </section>

@@ -77,9 +77,9 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
             >
               <TokenImage src={t.image} address={t.address} symbol={t.symbol} size={22} />
               <span className="text-sm">{t.name}</span>
-              <span className="font-mono text-[11px] text-muted">{t.symbol}</span>
+              <span className="font-mono text-[12px] text-muted">{t.symbol}</span>
               {t.graduated && (
-                <span className="ml-auto font-mono text-[10px] text-accent-2">graduated</span>
+                <span className="ml-auto font-mono text-[11px] text-accent-2">graduated</span>
               )}
             </button>
           ))}
@@ -91,8 +91,8 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
             >
               <TokenImage address={extra.address} symbol={extra.symbol} size={22} />
               <span className="text-sm">{extra.name}</span>
-              <span className="font-mono text-[11px] text-muted">{extra.symbol}</span>
-              <span className="ml-auto font-mono text-[10px] text-muted">swap</span>
+              <span className="font-mono text-[12px] text-muted">{extra.symbol}</span>
+              <span className="ml-auto font-mono text-[11px] text-muted">swap</span>
             </button>
           )}
           {isAddress(q) && !extra && tokens.length === 0 && (

@@ -55,8 +55,8 @@ export default function PoolsPage() {
 function PoolTable({ pools }: { pools: PoolRecord[] }) {
   return (
     <div className="overflow-x-auto rounded-sm border border-line">
-      <table className="w-full text-left font-mono text-[12px]">
-        <thead className="text-[11px] text-faint">
+      <table className="w-full text-left font-mono text-[13px]">
+        <thead className="text-[12px] text-faint">
           <tr>
             <th className="px-3 py-2 font-normal">pair</th>
             <th className="px-3 py-2 font-normal">tvl</th>
@@ -232,7 +232,7 @@ function AddLiquidity({ pools }: { pools: PoolRecord[] }) {
 
   return (
     <div className="mx-auto max-w-md space-y-3 rounded-sm border border-line bg-elev p-4">
-      <label className="block font-mono text-[11px] text-muted">
+      <label className="block font-mono text-[12px] text-muted">
         token
         <select
           value={token}
@@ -254,7 +254,7 @@ function AddLiquidity({ pools }: { pools: PoolRecord[] }) {
             ))}
         </select>
       </label>
-      <label className="block font-mono text-[11px] text-muted">
+      <label className="block font-mono text-[12px] text-muted">
         token amount
         <input
           value={amtTok}
@@ -262,7 +262,7 @@ function AddLiquidity({ pools }: { pools: PoolRecord[] }) {
           className="mt-1 w-full rounded-sm border border-line bg-bg px-2 py-2 text-ink"
         />
       </label>
-      <label className="block font-mono text-[11px] text-muted">
+      <label className="block font-mono text-[12px] text-muted">
         qie amount
         <input
           value={amtQie}
@@ -343,7 +343,7 @@ function RemoveLiquidity({ pools }: { pools: PoolRecord[] }) {
 
   return (
     <div className="mx-auto max-w-md space-y-3 rounded-sm border border-line bg-elev p-4">
-      <label className="block font-mono text-[11px] text-muted">
+      <label className="block font-mono text-[12px] text-muted">
         position
         <select
           value={pair}
@@ -358,7 +358,7 @@ function RemoveLiquidity({ pools }: { pools: PoolRecord[] }) {
           ))}
         </select>
       </label>
-      <label className="block font-mono text-[11px] text-muted">
+      <label className="block font-mono text-[12px] text-muted">
         withdraw {pct}%
         <input
           type="range"
@@ -426,10 +426,10 @@ function CreatePool() {
 
   return (
     <div className="mx-auto max-w-md space-y-3 rounded-sm border border-line bg-elev p-4">
-      <p className="font-mono text-[11px] text-muted">
+      <p className="font-mono text-[12px] text-muted">
         create a pair via the amm factory. seed it afterwards from add liquidity.
       </p>
-      <label className="block font-mono text-[11px] text-muted">
+      <label className="block font-mono text-[12px] text-muted">
         token a
         <input
           value={tokenA}
@@ -438,7 +438,7 @@ function CreatePool() {
           className="mt-1 w-full rounded-sm border border-line bg-bg px-2 py-2 text-ink"
         />
       </label>
-      <label className="block font-mono text-[11px] text-muted">
+      <label className="block font-mono text-[12px] text-muted">
         token b
         <input
           value={tokenB}

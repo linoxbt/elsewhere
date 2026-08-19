@@ -12,7 +12,7 @@ export function OracleBadge() {
   const mainnet = NETWORKS.mainnet;
 
   if (isLoading && !data) {
-    return <span className="hidden font-mono text-[11px] text-muted lg:inline">qie …</span>;
+    return <span className="hidden font-mono text-[12px] text-muted lg:inline">qie …</span>;
   }
   if (!data || isError) {
     return (
@@ -20,7 +20,7 @@ export function OracleBadge() {
         href={explorerAddress(mainnet, oracleAddr)}
         target="_blank"
         rel="noreferrer"
-        className="hidden font-mono text-[11px] text-down lg:inline"
+        className="hidden font-mono text-[12px] text-down lg:inline"
       >
         oracle stale
       </a>
@@ -31,7 +31,7 @@ export function OracleBadge() {
       href={explorerAddress(mainnet, oracleAddr)}
       target="_blank"
       rel="noreferrer"
-      className="hidden items-center gap-1.5 font-mono text-[11px] text-muted hover:text-ink lg:flex"
+      className="hidden items-center gap-1.5 font-mono text-[12px] text-muted hover:text-ink lg:flex"
       title={`official QIE/USD · ${oracleAddr}`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-up" />

@@ -25,7 +25,7 @@ export function TokenImage({
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt={symbol || ""} className="h-full w-full object-cover" />
       ) : (
-        <span className="flex h-full w-full items-center justify-center font-mono text-[10px] uppercase text-white/80">
+        <span className="flex h-full w-full items-center justify-center font-mono text-[11px] uppercase text-white/80">
           {(symbol || "?").slice(0, 3)}
         </span>
       )}
