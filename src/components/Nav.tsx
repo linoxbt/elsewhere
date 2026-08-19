@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { useAccount, useChainId } from "wagmi";
 import { Logo } from "./Logo";
 import { WalletButton } from "./WalletButton";
-import { FaucetButton } from "./FaucetButton";
 import { AddChainButton } from "./AddChainButton";
 import { SuiteMenu } from "./SuiteMenu";
 import { useNetwork } from "./NetworkProvider";
@@ -22,7 +21,6 @@ export function Nav() {
       <div className="mx-auto flex w-full max-w-6xl items-center gap-2 overflow-visible px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
         <Logo />
         <div className="ml-auto flex items-center gap-1.5 overflow-visible sm:gap-2">
-          {!landing && <FaucetButton />}
           {wrong && !landing && <AddChainButton compact />}
           {!landing && <SuiteMenu />}
           <WalletButton />
