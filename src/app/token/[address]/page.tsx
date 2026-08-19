@@ -68,11 +68,11 @@ export default function TokenPage({ params }: { params: Promise<{ address: strin
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
       <div className="space-y-5">
-        <div className="flex items-start gap-4">
-          <TokenImage src={token.image} address={token.address} symbol={token.symbol} size={72} />
+        <div className="flex items-start gap-3 sm:gap-4">
+          <TokenImage src={token.image} address={token.address} symbol={token.symbol} size={56} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-mono text-2xl tracking-tight">{token.name}</h1>
+              <h1 className="truncate font-mono text-xl tracking-tight sm:text-2xl">{token.name}</h1>
               <span className="font-mono text-xs uppercase text-muted">${token.symbol}</span>
               {token.graduated ? (
                 <span className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-accent-2">

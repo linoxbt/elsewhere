@@ -12,7 +12,7 @@ export function WalletButton() {
 
   if (!ready) {
     return (
-      <span className="inline-flex h-9 min-w-[8.5rem] items-center justify-center rounded-sm border border-line bg-elev px-3 font-mono text-[11px] text-muted">
+      <span className="inline-flex h-8 min-w-[6.5rem] items-center justify-center rounded-sm border border-line bg-elev px-2 font-mono text-[11px] text-muted sm:h-9 sm:min-w-[8.5rem] sm:px-3">
         connect wallet
       </span>
     );

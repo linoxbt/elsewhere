@@ -81,10 +81,80 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb {
 .btn-cta {
   background: var(--cta-bg);
   color: var(--cta-fg);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .btn-cta:hover {
   opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+@keyframes lp-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lp-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.lp-fade {
+  animation: lp-fade-up 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.lp-d1 {
+  animation-delay: 0.08s;
+}
+.lp-d2 {
+  animation-delay: 0.16s;
+}
+.lp-d3 {
+  animation-delay: 0.24s;
+}
+.lp-d4 {
+  animation-delay: 0.32s;
+}
+
+.lp-float {
+  animation: lp-float 7.5s ease-in-out infinite;
+}
+
+.lp-card {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    background-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.lp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-fade,
+  .lp-float,
+  .lp-card,
+  .btn-cta {
+    animation: none;
+    transition: none;
+  }
+  .lp-card:hover,
+  .btn-cta:hover {
+    transform: none;
+  }
 }
 
 ::selection {
@@ -120,7 +190,13 @@ a {
 .reown-btn {
   display: inline-flex;
   align-items: center;
-  min-height: 2.25rem;
+  min-height: 2rem;
+}
+
+@media (min-width: 640px) {
+  .reown-btn {
+    min-height: 2.25rem;
+  }
 }
 
 .reown-btn appkit-button {

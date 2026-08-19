@@ -212,7 +212,7 @@ export default function SendPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="mx-auto w-full max-w-xl">
       <h1 className="font-mono text-2xl tracking-tight">send</h1>
       <p className="mt-1 text-sm text-muted">
         send native QIE or any ERC-20. batch mode fans out to many recipients in one flow.

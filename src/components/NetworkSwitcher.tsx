@@ -37,7 +37,7 @@ export function NetworkSwitcher() {
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 z-50 mt-1 min-w-[13rem] rounded-sm border border-line bg-elev p-1 shadow-xl"
+          className="absolute right-0 z-50 mt-1 w-[min(13rem,calc(100vw-1.5rem))] rounded-sm border border-line bg-elev p-1 shadow-xl"
         >
           {(Object.keys(NETWORKS) as NetworkKey[]).map((k) => {
             const net = NETWORKS[k];

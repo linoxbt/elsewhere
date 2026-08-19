@@ -168,7 +168,7 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="mx-auto w-full max-w-xl">
       <h1 className="font-mono text-2xl tracking-tight">create</h1>
       <p className="mt-1 mb-6 text-sm text-muted">
         deploy a token + bonding curve on qie. creation fee is paid in native QIE.

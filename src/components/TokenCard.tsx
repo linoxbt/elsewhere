@@ -11,7 +11,7 @@ export function TokenCard({ token }: { token: TokenRecord }) {
   return (
     <Link
       href={`/token/${token.address}`}
-      className="group flex flex-col gap-3 rounded-sm border border-line bg-elev p-3 hover:border-[#333]"
+      className="group flex flex-col gap-3 rounded-sm border border-line bg-elev p-3 hover:border-line-strong"
     >
       <div className="flex items-start gap-3">
         <TokenImage src={token.image} address={token.address} symbol={token.symbol} size={44} />

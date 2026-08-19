@@ -11,7 +11,7 @@ export function NetworkGuard() {
   if (!isConnected) return null;
   if (chainId === network.id) return null;
   return (
-    <div className="border-b border-line bg-[#1a1408] px-4 py-2 text-center text-xs text-accent">
+    <div className="border-b border-line bg-[#1a1408] px-3 py-2 text-center text-[11px] text-accent sm:px-4 sm:text-xs">
       wallet is on chain {chainId}. elsewhere is set to {network.name} ({network.id}).{" "}
       <span className="ml-2 inline-block">
         <AddChainButton />

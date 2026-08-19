@@ -60,7 +60,7 @@ export function SuiteMenu() {
         <LayoutGrid className="h-3.5 w-3.5" />
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-[20.5rem] rounded-sm border border-line bg-elev p-2 shadow-xl sm:w-[22rem]">
+        <div className="absolute right-0 z-50 mt-2 w-[min(20.5rem,calc(100vw-1.5rem))] rounded-sm border border-line bg-elev p-2 shadow-xl sm:w-[22rem]">
           <p className="mb-2 px-1 font-mono text-[10px] uppercase tracking-widest text-faint">
             elsewhere suite
           </p>

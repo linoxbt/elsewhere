@@ -198,7 +198,7 @@ function SwapInner() {
   const qieUsd = oracle && !oracle.stale ? oracle.usd : 0;
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto w-full max-w-md">
       <h1 className="font-mono text-2xl tracking-tight">swap</h1>
       <p className="mt-1 mb-4 text-sm text-muted">
         {useOfficial
