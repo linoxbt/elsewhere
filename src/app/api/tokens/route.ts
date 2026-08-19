@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listTokens } from "@/server/store";
 import { runOnce } from "@/server/indexer";
+import { liveLaunchpadTokens } from "@/server/liveListings";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,9 @@ export async function GET(req: NextRequest) {
   const sort = req.nextUrl.searchParams.get("sort") ?? "new";
   const q = (req.nextUrl.searchParams.get("q") ?? "").toLowerCase();
   let tokens = listTokens();
+  if (tokens.length === 0) {
+    tokens = await liveLaunchpadTokens();
+  }
   if (q) {
     tokens = tokens.filter(
       (t) =>

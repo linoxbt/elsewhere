@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAccount, useChainId, usePublicClient, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useReadContract } from "wagmi";
 import { decodeEventLog, formatEther, parseEther } from "viem";
 import { launchpadFactoryAbi } from "@/lib/abi/launchpad";
 import { contractsFor, explorerAddress, isLaunchpadDeployed, oracleFor, PROTOCOL } from "@/lib/config";
 import { useNetwork } from "@/components/NetworkProvider";
+import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import { formatAmount, formatUsd } from "@/lib/format";
 import { creationFeeQieFromOracle, formatOracleAge } from "@/lib/oracle";
 import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
@@ -17,8 +18,8 @@ export default function CreatePage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   const { data: oracle, isError: oracleError } = useOracle();
   const { network } = useNetwork();
   const contracts = contractsFor(network.key);
@@ -28,6 +29,7 @@ export default function CreatePage() {
     address: contracts.launchpadFactory,
     abi: launchpadFactoryAbi,
     functionName: "creationFeeQie",
+    chainId: network.id,
     query: { enabled: isLaunchpadDeployed(network.key) },
   });
 

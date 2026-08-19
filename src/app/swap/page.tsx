@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAccount, useChainId, usePublicClient, useWriteContract } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { isAddress, zeroAddress } from "viem";
 import { ammRouterAbi } from "@/lib/abi/amm";
 import { qieDexRouterAbi } from "@/lib/abi/qiedex";
 import { erc20Abi } from "@/lib/abi/launchpad";
-import { NATIVE_QIE, ZERO_ADDRESS, contractsFor, isLaunchpadDeployed } from "@/lib/config";
+import { NATIVE_QIE, ZERO_ADDRESS, contractsFor, isLaunchpadDeployed, isZero } from "@/lib/config";
+import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import { formatAmount, formatUsdPrecise, parseAmount } from "@/lib/format";
 import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "@/components/AddChainButton";
@@ -23,8 +24,8 @@ function SwapInner() {
   const params = useSearchParams();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   const { put } = useTokenCache();
   const { data: oracle } = useOracle();
   const { network } = useNetwork();
@@ -44,6 +45,7 @@ function SwapInner() {
   const [open, setOpen] = useState<"in" | "out" | null>(null);
   const [tab, setTab] = useState<"swap" | "dca">("swap");
   const [quote, setQuote] = useState<{ out: bigint; via: "qiedex" | "elsewhere" } | null>(null);
+  const [quoteErr, setQuoteErr] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -55,10 +57,19 @@ function SwapInner() {
       setCatalog(tokens);
       tokens.forEach((t) => put(t));
       const qiedex = tokens.find((t) => t.symbol.toUpperCase() === "QIEDEX");
-      const wqie = tokens.find((t) => t.symbol.toUpperCase() === "WQIE");
+      const elseTok = tokens.find((t) => t.symbol.toUpperCase() === "ELSE");
+      const tradable = tokens.find(
+        (t) => !t.isNative && t.symbol.toUpperCase() !== "WQIE",
+      );
       setTokenIn({ ...NATIVE_QIE });
-      setTokenOut(qiedex ?? wqie ?? tokens[1] ?? { address: ZERO_ADDRESS, name: "select token", symbol: "…", decimals: 18 });
+      setTokenOut(
+        qiedex ??
+          elseTok ??
+          tradable ??
+          tokens[1] ?? { address: ZERO_ADDRESS, name: "select token", symbol: "…", decimals: 18 },
+      );
       setQuote(null);
+      setQuoteErr("");
       setAmount("");
     })();
     return () => {
@@ -83,39 +94,82 @@ function SwapInner() {
   useEffect(() => {
     let cancelled = false;
     async function run() {
-      if (!client || amt === 0n || outAddr === ZERO_ADDRESS || inAddr === ZERO_ADDRESS) {
+      if (!client || amt === 0n || isZero(outAddr) || isZero(inAddr)) {
         setQuote(null);
+        setQuoteErr("");
         return;
       }
       if (inAddr.toLowerCase() === outAddr.toLowerCase()) {
         setQuote(null);
+        setQuoteErr("same token");
         return;
       }
-      const path = [inAddr, outAddr] as `0x${string}`[];
+      const paths: `0x${string}`[][] = [[inAddr, outAddr]];
+      if (
+        wrap &&
+        inAddr.toLowerCase() !== wrap.toLowerCase() &&
+        outAddr.toLowerCase() !== wrap.toLowerCase()
+      ) {
+        paths.push([inAddr, wrap, outAddr]);
+      }
       try {
         if (useOfficial && official) {
-          const amounts = await client.readContract({
-            address: official.router,
-            abi: qieDexRouterAbi,
-            functionName: "getAmountsOut",
-            args: [amt, path],
-          });
-          if (!cancelled) setQuote({ out: amounts[amounts.length - 1], via: "qiedex" });
+          for (const path of paths) {
+            try {
+              const amounts = await client.readContract({
+                address: official.router,
+                abi: qieDexRouterAbi,
+                functionName: "getAmountsOut",
+                args: [amt, path],
+              });
+              if (!cancelled) {
+                setQuote({ out: amounts[amounts.length - 1], via: "qiedex" });
+                setQuoteErr("");
+              }
+              return;
+            } catch {
+              /* try next path */
+            }
+          }
+          if (!cancelled) {
+            setQuote(null);
+            setQuoteErr("no official pool for this pair");
+          }
           return;
         }
-        if (!isLaunchpadDeployed(network.key)) {
-          if (!cancelled) setQuote(null);
+        if (!isLaunchpadDeployed(network.key) || isZero(ours.ammRouter)) {
+          if (!cancelled) {
+            setQuote(null);
+            setQuoteErr("amm router not deployed on this network");
+          }
           return;
         }
-        const [out] = await client.readContract({
-          address: ours.ammRouter,
-          abi: ammRouterAbi,
-          functionName: "quoteSwap",
-          args: [amt, path],
-        });
-        if (!cancelled) setQuote({ out, via: "elsewhere" });
+        for (const path of paths) {
+          try {
+            const [out] = await client.readContract({
+              address: ours.ammRouter,
+              abi: ammRouterAbi,
+              functionName: "quoteSwap",
+              args: [amt, path],
+            });
+            if (!cancelled) {
+              setQuote({ out, via: "elsewhere" });
+              setQuoteErr("");
+            }
+            return;
+          } catch {
+            /* try next path */
+          }
+        }
+        if (!cancelled) {
+          setQuote(null);
+          setQuoteErr("no pool for this pair");
+        }
       } catch {
-        if (!cancelled) setQuote(null);
+        if (!cancelled) {
+          setQuote(null);
+          setQuoteErr("quote failed");
+        }
       }
     }
     const t = setTimeout(run, 280);
@@ -273,6 +327,9 @@ function SwapInner() {
             %
           </span>
         </div>
+        {quoteErr && amt > 0n && (
+          <p className="pt-1 font-mono text-[12px] text-down">{quoteErr}</p>
+        )}
         {quote && (
           <div className="space-y-1 border-t border-line pt-2 font-mono text-[12px] text-muted">
             <div className="flex justify-between">
@@ -328,8 +385,8 @@ async function maybeApprove(
   spender: `0x${string}`,
   amt: bigint,
   owner: `0x${string}`,
-  client: NonNullable<ReturnType<typeof usePublicClient>>,
-  write: ReturnType<typeof useWriteContract>["writeContractAsync"],
+  client: NonNullable<ReturnType<typeof useNetClient>>,
+  write: ReturnType<typeof useNetWrite>["writeContractAsync"],
 ) {
   const allowance = await client.readContract({
     address: token,

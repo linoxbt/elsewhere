@@ -6,8 +6,13 @@ import { NETWORKS } from "@/lib/networks";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const tokens = listTokens();
-  const pools = listPools();
+  let tokens = listTokens();
+  let pools = listPools();
+  if (tokens.length === 0) {
+    const { liveLaunchpadTokens, livePools } = await import("@/server/liveListings");
+    tokens = await liveLaunchpadTokens();
+    if (pools.length === 0) pools = await livePools("testnet");
+  }
   let qieUsd = 0;
   let oracleUpdatedAt = 0;
   let oracleError: string | null = null;

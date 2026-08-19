@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { zeroAddress } from "viem";
-import { useAccount, useChainId, usePublicClient, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useReadContract } from "wagmi";
 import { dcaAbi } from "@/lib/abi/dca";
 import { erc20Abi } from "@/lib/abi/launchpad";
 import { NATIVE_QIE, ZERO_ADDRESS, contractsFor } from "@/lib/config";
@@ -11,6 +11,7 @@ import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "./AddChainButton";
 import { TokenImage } from "./TokenImage";
 import { useNetwork } from "./NetworkProvider";
+import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import type { TokenMeta } from "@/lib/types";
 
 const INTERVALS = [
@@ -42,8 +43,8 @@ export function DcaPanel({
 }) {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   const { network } = useNetwork();
   const dca = contractsFor(network.key).dca;
   const deployed = dca !== ZERO_ADDRESS;
@@ -249,7 +250,7 @@ function OrderRow({
   catalog: TokenMeta[];
   onChange: () => void;
 }) {
-  const { writeContractAsync, isPending } = useWriteContract();
+  const { writeContractAsync, isPending } = useNetWrite();
   const { network } = useNetwork();
   const q = useReadContract({
     address: dca,

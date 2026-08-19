@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatUnits, maxUint256 } from "viem";
-import { useAccount, useChainId, usePublicClient, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useReadContract } from "wagmi";
 import { erc20Abi } from "@/lib/abi/launchpad";
 import { moneyMarketAbi } from "@/lib/abi/lending";
 import { ZERO_ADDRESS, contractsFor } from "@/lib/config";
@@ -10,6 +10,7 @@ import { formatAmount, formatUsd, parseAmount } from "@/lib/format";
 import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "@/components/AddChainButton";
 import { useNetwork } from "@/components/NetworkProvider";
+import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import { useDisplayOracle } from "@/hooks/useOracle";
 
 function aprPct(wad?: bigint) {
@@ -26,8 +27,8 @@ function healthLabel(bps?: bigint) {
 export default function LendPage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   const { network } = useNetwork();
   const { data: qiePrice } = useDisplayOracle();
   const contracts = contractsFor(network.key);

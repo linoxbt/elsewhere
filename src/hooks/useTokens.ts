@@ -61,11 +61,12 @@ export function useChart(address: string) {
   });
 }
 
-export function usePools() {
+export function usePools(chainId?: number) {
   return useQuery({
-    queryKey: ["pools"],
+    queryKey: ["pools", chainId],
     queryFn: async () => {
-      const res = await fetch("/api/pools");
+      const q = chainId ? `?chainId=${chainId}` : "";
+      const res = await fetch(`/api/pools${q}`);
       return res.json();
     },
     refetchInterval: 8000,

@@ -3,6 +3,7 @@
 import { createAppKit } from "@reown/appkit/react";
 import { defineChain, type AppKitNetwork } from "@reown/appkit/networks";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { fallback, http } from "viem";
 import { NETWORKS, type NetworkDef } from "./networks";
 
 export const WALLETCONNECT_PROJECT_ID =
@@ -32,6 +33,14 @@ export const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId: WALLETCONNECT_PROJECT_ID,
   ssr: true,
+  transports: {
+    [NETWORKS.testnet.id]: fallback(
+      NETWORKS.testnet.rpcUrls.map((url) => http(url, { timeout: 20_000 })),
+    ),
+    [NETWORKS.mainnet.id]: fallback(
+      NETWORKS.mainnet.rpcUrls.map((url) => http(url, { timeout: 20_000 })),
+    ),
+  },
 });
 
 createAppKit({

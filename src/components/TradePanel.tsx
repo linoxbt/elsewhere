@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAccount, useChainId, usePublicClient, useWriteContract } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 import Link from "next/link";
 import { bondingCurveAbi, erc20Abi } from "@/lib/abi/launchpad";
 import { ammRouterAbi } from "@/lib/abi/amm";
 import { contractsFor, PROTOCOL, ZERO_ADDRESS } from "@/lib/config";
 import { useNetwork } from "./NetworkProvider";
+import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import { formatAmount, parseAmount } from "@/lib/format";
 import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import type { TokenRecord } from "@/lib/types";
@@ -16,8 +17,8 @@ import { AddChainButton } from "./AddChainButton";
 export function TradePanel({ token }: { token: TokenRecord }) {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   const { network } = useNetwork();
   const contracts = contractsFor(network.key);
   const [side, setSide] = useState<"buy" | "sell">("buy");

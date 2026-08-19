@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount, useChainId, usePublicClient, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useReadContract } from "wagmi";
 import { isAddress } from "viem";
 import { ammFactoryAbi, ammPairAbi, ammRouterAbi } from "@/lib/abi/amm";
 import { erc20Abi } from "@/lib/abi/launchpad";
@@ -12,11 +12,13 @@ import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "@/components/AddChainButton";
 import { TokenImage } from "@/components/TokenImage";
 import { usePools, useTokens } from "@/hooks/useTokens";
+import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import { useTokenCache } from "@/components/TokenCache";
 import type { PoolRecord } from "@/lib/types";
 
 export default function PoolsPage() {
-  const { data } = usePools();
+  const { network } = useNetwork();
+  const { data } = usePools(network.id);
   const pools: PoolRecord[] = data?.pools ?? [];
   const [tab, setTab] = useState<"all" | "mine" | "add" | "remove" | "create">("all");
 
@@ -98,7 +100,7 @@ function PoolTable({ pools }: { pools: PoolRecord[] }) {
 
 function Positions({ pools }: { pools: PoolRecord[] }) {
   const { address } = useAccount();
-  const client = usePublicClient();
+  const client = useNetClient();
   const [rows, setRows] = useState<
     { pool: PoolRecord; liq: bigint; share: number; a0: bigint; a1: bigint }[]
   >([]);
@@ -161,8 +163,8 @@ function AddLiquidity({ pools }: { pools: PoolRecord[] }) {
   const contracts = contractsFor(network.key);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   useTokens("new", "");
   const { launchpad } = useTokenCache();
   const [token, setToken] = useState("");
@@ -174,6 +176,7 @@ function AddLiquidity({ pools }: { pools: PoolRecord[] }) {
     abi: ammFactoryAbi,
     functionName: "getPair",
     args: token && isAddress(token) ? [token as `0x${string}`, contracts.wqie] : undefined,
+    chainId: network.id,
     query: { enabled: contracts.ammFactory !== ZERO_ADDRESS && isAddress(token) },
   });
 
@@ -293,8 +296,8 @@ function RemoveLiquidity({ pools }: { pools: PoolRecord[] }) {
   const contracts = contractsFor(network.key);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   const [pair, setPair] = useState("");
   const [pct, setPct] = useState(50);
 
@@ -392,8 +395,8 @@ function CreatePool() {
   const contracts = contractsFor(network.key);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending } = useNetWrite();
   const [tokenA, setTokenA] = useState("");
   const [tokenB, setTokenB] = useState<string>(contracts.wqie);
 

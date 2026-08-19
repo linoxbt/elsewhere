@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { isAddress, zeroAddress } from "viem";
-import { useAccount, useChainId, usePublicClient, useSendTransaction, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useSendTransaction } from "wagmi";
 import { erc20Abi } from "@/lib/abi/launchpad";
 import { batchSenderAbi } from "@/lib/abi/lending";
 import { NATIVE_QIE, ZERO_ADDRESS, contractsFor } from "@/lib/config";
@@ -11,6 +11,7 @@ import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "@/components/AddChainButton";
 import { TokenImage } from "@/components/TokenImage";
 import { useNetwork } from "@/components/NetworkProvider";
+import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import { useTokenCache } from "@/components/TokenCache";
 import type { TokenMeta } from "@/lib/types";
 
@@ -23,8 +24,8 @@ function emptyRow(): Row {
 export default function SendPage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const client = usePublicClient();
-  const { writeContractAsync, isPending: writing } = useWriteContract();
+  const client = useNetClient();
+  const { writeContractAsync, isPending: writing } = useNetWrite();
   const { sendTransactionAsync, isPending: sending } = useSendTransaction();
   const isPending = writing || sending;
   const { network } = useNetwork();
@@ -129,7 +130,7 @@ export default function SendPage() {
         const row = valid[0];
         const to = row.to as `0x${string}`;
         if (token.isNative) {
-          const hash = await sendTransactionAsync({ to, value: row.amount });
+          const hash = await sendTransactionAsync({ to, value: row.amount, chainId: network.id });
           toastPending(hash, network.explorer);
           toastSuccess(hash, "sent", network.explorer);
           return;
@@ -162,7 +163,7 @@ export default function SendPage() {
           return;
         }
         for (const row of valid) {
-          const hash = await sendTransactionAsync({ to: row.to as `0x${string}`, value: row.amount });
+          const hash = await sendTransactionAsync({ to: row.to as `0x${string}`, value: row.amount, chainId: network.id });
           toastPending(hash, network.explorer);
         }
         toastSuccess(undefined, `${valid.length} transfers sent`);
