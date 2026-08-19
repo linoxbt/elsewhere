@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2 text-ink sm:gap-2.5">
+    <Link href="/" className="flex min-w-0 items-center gap-2 text-ink sm:gap-2.5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/brand/mark.jpg"

@@ -190,6 +190,9 @@ a {
 .reown-btn {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
+  max-width: none;
+  overflow: visible;
   min-height: 2rem;
 }
 
@@ -201,6 +204,9 @@ a {
 
 .reown-btn appkit-button {
   font-family: var(--font-mono) !important;
+  display: inline-flex !important;
+  max-width: none !important;
+  overflow: visible !important;
 }
 
 ::-webkit-scrollbar {
