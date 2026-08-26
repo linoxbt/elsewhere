@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -47,4 +50,8 @@ jobs:
           NEXT_PUBLIC_MONEY_MARKET: ${{ secrets.NEXT_PUBLIC_MONEY_MARKET }}
           NEXT_PUBLIC_ELSE_TOKEN: ${{ secrets.NEXT_PUBLIC_ELSE_TOKEN }}
           NEXT_PUBLIC_DCA: ${{ secrets.NEXT_PUBLIC_DCA }}
-        run: npx --yes netlify-cli deploy --build --prod --message "gha ${GITHUB_SHA}"
+        # Pinned: this job holds NETLIFY_AUTH_TOKEN/NETLIFY_SITE_ID in its
+        # env, and an unpinned `npx --yes netlify-cli` would fetch whatever
+        # version (and full transitive dependency tree) npm serves at deploy
+        # time and execute it with those secrets live on every push to main.
+        run: npx --yes netlify-cli@27.4.0 deploy --build --prod --message "gha ${GITHUB_SHA}"

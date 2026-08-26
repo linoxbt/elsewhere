@@ -94,26 +94,22 @@ export default function CreatePage() {
     }
     setBusy(true);
     try {
+      // Deliberately no client-side data: URI fallback here: embedding a
+      // multi-MB base64 image directly as on-chain calldata would either
+      // blow the block gas limit or cost an enormous amount of real QIE for
+      // a transaction that's very likely to just revert. If the upload
+      // pipeline is down, block submission with a clear error instead.
+      const fd = new FormData();
+      fd.append("file", imageFile);
+      const up = await fetch("/api/upload", { method: "POST", body: fd });
       let imageUri = "";
-      try {
-        const fd = new FormData();
-        fd.append("file", imageFile);
-        const up = await fetch("/api/upload", { method: "POST", body: fd });
-        if (up.ok) {
-          const json = (await up.json()) as { uri?: string };
-          imageUri = json.uri ?? "";
-        }
-      } catch {
-        /* fall through to local data uri */
+      if (!up.ok) {
+        const err = (await up.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error || "image upload failed, try again");
       }
-      if (!imageUri) {
-        imageUri = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result || ""));
-          reader.onerror = () => reject(new Error("could not read image"));
-          reader.readAsDataURL(imageFile);
-        });
-      }
+      const json = (await up.json()) as { uri?: string };
+      imageUri = json.uri ?? "";
+      if (!imageUri) throw new Error("image upload failed, try again");
 
       const metaRes = await fetch("/api/metadata", {
         method: "POST",

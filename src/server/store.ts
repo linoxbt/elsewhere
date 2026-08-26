@@ -12,6 +12,7 @@ const DATA = path.join(process.cwd(), "data");
 
 type Db = {
   lastBlock: number;
+  lastIndexedAt: number;
   tokens: Record<string, TokenRecord>;
   trades: TradeRecord[];
   pools: Record<string, PoolRecord>;
@@ -22,6 +23,7 @@ type Db = {
 
 const empty = (): Db => ({
   lastBlock: 0,
+  lastIndexedAt: 0,
   tokens: {},
   trades: [],
   pools: {},
@@ -51,12 +53,18 @@ export function loadDb(): Db {
 export function saveDb(next?: Db) {
   const db = next ?? loadDb();
   mem = db;
-  writing = writing.then(() => {
+  // Reset the chain on a prior rejection first: chaining straight off an
+  // already-rejected promise makes every future `.then()` a silent no-op —
+  // one transient write failure (e.g. a read-only serverless filesystem)
+  // would otherwise permanently disable persistence for the rest of the
+  // process without raising any new error.
+  writing = writing.catch(() => undefined).then(() => {
     fs.mkdirSync(DATA, { recursive: true });
     const tmp = file() + ".tmp";
     fs.writeFileSync(tmp, JSON.stringify(db));
     fs.renameSync(tmp, file());
   });
+  writing.catch((err) => console.error("[store] saveDb failed", err));
   return writing;
 }
 
@@ -168,25 +176,13 @@ function applyVolume(t: TradeRecord) {
   const cutoff = Math.floor(Date.now() / 1000) - 86400;
   const vol = loadDb()
     .trades.filter((x) => x.token.toLowerCase() === t.token.toLowerCase() && x.timestamp >= cutoff)
-    .reduce((s, x) => s + x.priceUsd * 0 + /* quote in usd */ quoteUsd(x), 0);
+    .reduce((s, x) => s + quoteUsd(x), 0);
   tok.volume24hUsd = vol;
 }
 
 function quoteUsd(t: TradeRecord): number {
   const qie = Number(t.quoteAmount) / 1e18;
-  if (t.priceUsd > 0 && Number(t.tokenAmount) > 0) {
-    // priceUsd is per token; not needed. Use stored market context later.
-  }
-  return qie * inferQieUsd(t);
-}
-
-function inferQieUsd(t: TradeRecord): number {
-  const tokens = Number(t.tokenAmount) / 1e18;
-  const qie = Number(t.quoteAmount) / 1e18;
-  if (tokens <= 0 || qie <= 0 || t.priceUsd <= 0) return 0;
-  const priceQie = qie / tokens;
-  if (priceQie <= 0) return 0;
-  return t.priceUsd / priceQie;
+  return qie * t.qieUsd;
 }
 
 export function setLastBlock(n: number) {
@@ -195,6 +191,14 @@ export function setLastBlock(n: number) {
 
 export function getLastBlock() {
   return loadDb().lastBlock;
+}
+
+export function setLastIndexedAt(unixSeconds: number) {
+  loadDb().lastIndexedAt = unixSeconds;
+}
+
+export function getLastIndexedAt() {
+  return loadDb().lastIndexedAt ?? 0;
 }
 
 export function getMeta(addr: string) {

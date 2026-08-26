@@ -137,6 +137,34 @@ export const lendingPoolAbi = [
     inputs: [],
     outputs: [{ type: "uint256" }],
   },
+  {
+    type: "function",
+    name: "LIQ_THRESHOLD_BPS",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "updateTwap",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "token", type: "address" }],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "twapReady",
+    stateMutability: "view",
+    inputs: [{ name: "token", type: "address" }],
+    outputs: [{ type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "TWAP_MIN_WINDOW",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint32" }],
+  },
 ] as const;
 
 export const batchSenderAbi = [

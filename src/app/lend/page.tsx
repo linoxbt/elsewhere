@@ -1,13 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { formatUnits, maxUint256 } from "viem";
+import { formatUnits, isAddress } from "viem";
 import { useAccount, useChainId, useReadContract } from "wagmi";
-import { erc20Abi } from "@/lib/abi/launchpad";
-import { moneyMarketAbi } from "@/lib/abi/lending";
+import { lendingPoolAbi } from "@/lib/abi/lending";
 import { ZERO_ADDRESS, contractsFor } from "@/lib/config";
 import { formatAmount, formatUsd, parseAmount } from "@/lib/format";
-import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
+import { maybeApprove, toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "@/components/AddChainButton";
 import { useNetwork } from "@/components/NetworkProvider";
 import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
@@ -24,6 +23,11 @@ function healthLabel(bps?: bigint) {
   return `${(Number(bps) / 100).toFixed(0)}%`;
 }
 
+// Both are read on-chain below (LIQ_THRESHOLD_BPS, COLLATERAL_FACTOR_BPS);
+// these are only display fallbacks before those reads resolve.
+const FALLBACK_LIQ_THRESHOLD_BPS = 8_000n;
+const FALLBACK_COLLATERAL_FACTOR_BPS = 7_000n;
+
 export default function LendPage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
@@ -32,79 +36,170 @@ export default function LendPage() {
   const { network } = useNetwork();
   const { data: qiePrice } = useDisplayOracle();
   const contracts = contractsFor(network.key);
-  const market = contracts.moneyMarket;
-  const elseToken = contracts.elseToken;
-  const deployed = market !== ZERO_ADDRESS && elseToken !== ZERO_ADDRESS;
+  const pool = contracts.lendingPool;
+  const deployed = pool !== ZERO_ADDRESS;
   const wrong = isConnected && chainId !== network.id;
-
-  const [tab, setTab] = useState<"supply" | "borrow">("supply");
-  const [amount, setAmount] = useState("");
-  const parsed = useMemo(() => parseAmount(amount, 18), [amount]);
   const qieUsd = qiePrice?.usd ?? 0;
 
-  const snap = useReadContract({
-    address: market,
-    abi: moneyMarketAbi,
-    functionName: "marketSnapshot",
-    args: [elseToken],
-    chainId: network.id,
-    query: { enabled: deployed, refetchInterval: 8_000 },
-  });
+  const [tab, setTab] = useState<"supply" | "collateral">("supply");
+  const [supplyAmount, setSupplyAmount] = useState("");
+  const [collateralAddr, setCollateralAddr] = useState("");
+  const [collateralAmount, setCollateralAmount] = useState("");
+  const [borrowAmount, setBorrowAmount] = useState("");
+  const [liqBorrower, setLiqBorrower] = useState("");
+  const [liqToken, setLiqToken] = useState("");
+  const [liqPay, setLiqPay] = useState("");
 
-  const qieApr = useReadContract({
-    address: market,
-    abi: moneyMarketAbi,
-    functionName: "qieSupplyRateWad",
+  const supplyParsed = useMemo(() => parseAmount(supplyAmount, 18), [supplyAmount]);
+  const collateralParsed = useMemo(() => parseAmount(collateralAmount, 18), [collateralAmount]);
+  const borrowParsed = useMemo(() => parseAmount(borrowAmount, 18), [borrowAmount]);
+  const liqPayParsed = useMemo(() => parseAmount(liqPay, 18), [liqPay]);
+
+  const collateralToken = isAddress(collateralAddr) ? (collateralAddr as `0x${string}`) : undefined;
+  const liqBorrowerAddr = isAddress(liqBorrower) ? (liqBorrower as `0x${string}`) : undefined;
+  const liqTokenAddr = isAddress(liqToken) ? (liqToken as `0x${string}`) : undefined;
+
+  const snap = useReadContract({
+    address: pool,
+    abi: lendingPoolAbi,
+    functionName: "marketSnapshot",
     chainId: network.id,
     query: { enabled: deployed, refetchInterval: 8_000 },
   });
 
   const account = useReadContract({
-    address: market,
-    abi: moneyMarketAbi,
+    address: pool,
+    abi: lendingPoolAbi,
     functionName: "accountSnapshot",
     args: address ? [address] : undefined,
     chainId: network.id,
     query: { enabled: deployed && !!address, refetchInterval: 8_000 },
   });
 
-  const elseDebt = useReadContract({
-    address: market,
-    abi: moneyMarketAbi,
-    functionName: "borrowBalance",
-    args: address ? [address, elseToken] : undefined,
+  const liqThreshold = useReadContract({
+    address: pool,
+    abi: lendingPoolAbi,
+    functionName: "LIQ_THRESHOLD_BPS",
     chainId: network.id,
-    query: { enabled: deployed && !!address, refetchInterval: 8_000 },
+    query: { enabled: deployed },
   });
 
-  const listed = snap.data?.[0];
-  const cash = snap.data?.[1] ?? 0n;
-  const borrows = snap.data?.[2] ?? 0n;
+  const collateralFactor = useReadContract({
+    address: pool,
+    abi: lendingPoolAbi,
+    functionName: "COLLATERAL_FACTOR_BPS",
+    chainId: network.id,
+    query: { enabled: deployed },
+  });
+
+  const myCollateral = useReadContract({
+    address: pool,
+    abi: lendingPoolAbi,
+    functionName: "collateral",
+    args: address && collateralToken ? [address, collateralToken] : undefined,
+    chainId: network.id,
+    query: { enabled: deployed && !!address && !!collateralToken, refetchInterval: 8_000 },
+  });
+
+  const collateralTwapReady = useReadContract({
+    address: pool,
+    abi: lendingPoolAbi,
+    functionName: "twapReady",
+    args: collateralToken ? [collateralToken] : undefined,
+    chainId: network.id,
+    query: { enabled: deployed && !!collateralToken, refetchInterval: 8_000 },
+  });
+
+  const collateralUsd8 = useReadContract({
+    address: pool,
+    abi: lendingPoolAbi,
+    functionName: "tokenUsd8",
+    args: collateralToken ? [collateralToken] : undefined,
+    chainId: network.id,
+    query: { enabled: deployed && !!collateralToken && collateralTwapReady.data === true, refetchInterval: 8_000 },
+  });
+
+  const liqAccount = useReadContract({
+    address: pool,
+    abi: lendingPoolAbi,
+    functionName: "accountSnapshot",
+    args: liqBorrowerAddr ? [liqBorrowerAddr] : undefined,
+    chainId: network.id,
+    query: { enabled: deployed && !!liqBorrowerAddr, refetchInterval: 8_000 },
+  });
+
+  const cash = snap.data?.[0] ?? 0n;
+  const borrows = snap.data?.[1] ?? 0n;
+  const totalSupplied = snap.data?.[2] ?? 0n;
   const utilBps = snap.data?.[3] ?? 0n;
-  const borrowApr = snap.data?.[4];
-  const elseSupplyApr = snap.data?.[5];
-  const priceQie = snap.data?.[6] ?? 0n;
+  const supplyApr = snap.data?.[4];
+  const borrowApr = snap.data?.[5];
+
   const supplied = account.data?.[0] ?? 0n;
   const debtQie = account.data?.[1] ?? 0n;
-  const health = account.data?.[2];
-  const borrowedElse = elseDebt.data ?? 0n;
+  const collatUsd8 = account.data?.[2] ?? 0n;
+  const debtUsd8 = account.data?.[3] ?? 0n;
+  const health = account.data?.[4];
+  const liqThresholdBps = liqThreshold.data ?? FALLBACK_LIQ_THRESHOLD_BPS;
+  const collateralFactorBps = collateralFactor.data ?? FALLBACK_COLLATERAL_FACTOR_BPS;
 
-  const maxBorrowElse =
-    priceQie > 0n ? ((supplied * 7000n) / 10_000n * 10n ** 18n) / priceQie : 0n;
+  const myCollateralAmt = myCollateral.data ?? 0n;
+  const collateralReady = collateralTwapReady.data === true;
+  const collateralPriceUsd8 = collateralUsd8.data;
 
-  async function run(label: string, fn: () => Promise<`0x${string}`>) {
+  async function refetchAll() {
+    void snap.refetch();
+    void account.refetch();
+    void myCollateral.refetch();
+    void collateralTwapReady.refetch();
+  }
+
+  async function run(label: string, fn: () => Promise<`0x${string}`>, onDone?: () => void) {
+    if (!client) return;
     try {
       const hash = await fn();
       toastPending(hash, network.explorer);
+      await client.waitForTransactionReceipt({ hash });
       toastSuccess(hash, label, network.explorer);
-      setAmount("");
-      void snap.refetch();
-      void account.refetch();
-      void elseDebt.refetch();
-      void qieApr.refetch();
+      onDone?.();
+      void refetchAll();
     } catch (e) {
       toastFail(e);
     }
+  }
+
+  async function depositCollateral() {
+    if (!client || !address || !collateralToken || collateralParsed <= 0n) return;
+    try {
+      await maybeApprove(collateralToken, pool, collateralParsed, address, client, writeContractAsync);
+      await run("collateral posted", () =>
+        writeContractAsync({
+          address: pool,
+          abi: lendingPoolAbi,
+          functionName: "depositCollateral",
+          args: [collateralToken, collateralParsed],
+        }),
+      );
+      setCollateralAmount("");
+    } catch (e) {
+      toastFail(e);
+    }
+  }
+
+  async function liquidate() {
+    if (!liqBorrowerAddr || !liqTokenAddr || liqPayParsed <= 0n) return;
+    void run(
+      "liquidated",
+      () =>
+        writeContractAsync({
+          address: pool,
+          abi: lendingPoolAbi,
+          functionName: "liquidate",
+          args: [liqBorrowerAddr, liqTokenAddr],
+          value: liqPayParsed,
+        }),
+      () => setLiqPay(""),
+    );
   }
 
   return (
@@ -112,14 +207,16 @@ export default function LendPage() {
       <div className="mb-6">
         <h1 className="font-mono text-2xl tracking-tight">lend</h1>
         <p className="mt-1 max-w-2xl text-sm text-muted">
-          supply QIE. that deposit is your collateral. then borrow ELSE. APR is live on-chain
-          and rises with utilization (5% base, steeper after 80% used).
+          supply QIE to earn yield. separately, post any launched token as collateral (paired with
+          WQIE) and borrow QIE against it. collateral pricing uses a 30-minute time-weighted
+          average from that token&apos;s pool, so a brand-new pair needs to season before it can be
+          borrowed against.
         </p>
       </div>
 
       {!deployed && (
         <div className="rounded-sm border border-line bg-elev p-4 font-mono text-[13px] text-muted">
-          money market is not deployed on {network.name} yet.
+          lending pool is not deployed on {network.name} yet.
         </div>
       )}
 
@@ -130,7 +227,7 @@ export default function LendPage() {
               <thead className="text-[12px] text-faint">
                 <tr>
                   <th className="px-3 py-2 font-normal">market</th>
-                  <th className="px-3 py-2 font-normal">available</th>
+                  <th className="px-3 py-2 font-normal">cash</th>
                   <th className="px-3 py-2 font-normal">borrowed</th>
                   <th className="px-3 py-2 font-normal">util</th>
                   <th className="px-3 py-2 font-normal">supply apr</th>
@@ -140,18 +237,10 @@ export default function LendPage() {
               <tbody>
                 <tr className="border-t border-line">
                   <td className="px-3 py-2 text-ink">QIE</td>
-                  <td className="px-3 py-2">{formatAmount(supplied)} yours</td>
-                  <td className="px-3 py-2">{formatAmount(debtQie)} debt</td>
-                  <td className="px-3 py-2">collateral</td>
-                  <td className="px-3 py-2 text-up">{aprPct(qieApr.data)}</td>
-                  <td className="px-3 py-2 text-faint">n/a</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-ink">ELSE</td>
                   <td className="px-3 py-2">{formatAmount(cash)}</td>
                   <td className="px-3 py-2">{formatAmount(borrows)}</td>
                   <td className="px-3 py-2">{(Number(utilBps) / 100).toFixed(1)}%</td>
-                  <td className="px-3 py-2">{aprPct(elseSupplyApr)}</td>
+                  <td className="px-3 py-2 text-up">{aprPct(supplyApr)}</td>
                   <td className="px-3 py-2 text-accent">{aprPct(borrowApr)}</td>
                 </tr>
               </tbody>
@@ -162,141 +251,284 @@ export default function LendPage() {
             <div className="h-full bg-accent" style={{ width: `${Math.min(100, Number(utilBps) / 100)}%` }} />
           </div>
           <p className="mb-6 font-mono text-[12px] text-faint">
-            ELSE utilization { (Number(utilBps) / 100).toFixed(1) }% · price {formatAmount(priceQie)} QIE
-            each · listed {listed ? "yes" : "no"}
+            total supplied {formatAmount(totalSupplied)} QIE
           </p>
 
           {isConnected && (
             <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Stat label="your QIE" value={`${formatAmount(supplied)} QIE`} sub={formatUsd(Number(formatUnits(supplied, 18)) * qieUsd)} />
-              <Stat label="ELSE debt" value={`${formatAmount(borrowedElse)} ELSE`} />
-              <Stat label="health" value={healthLabel(health)} sub={borrowedElse === 0n ? "no debt" : Number(health ?? 0n) < 8000 ? "near liq" : "ok"} />
-              <Stat label="max ELSE" value={formatAmount(maxBorrowElse)} sub="70% LTV" />
+              <Stat
+                label="your supply"
+                value={`${formatAmount(supplied)} QIE`}
+                sub={formatUsd(Number(formatUnits(supplied, 18)) * qieUsd)}
+              />
+              <Stat label="your debt" value={`${formatAmount(debtQie)} QIE`} sub={formatUsd(Number(debtUsd8) / 1e8)} />
+              <Stat
+                label="health"
+                value={healthLabel(health)}
+                sub={
+                  debtQie === 0n
+                    ? "no debt"
+                    : Number(health ?? 0n) < Number(liqThresholdBps)
+                      ? "liquidatable"
+                      : "ok"
+                }
+              />
+              <Stat label="collateral value" value={formatUsd(Number(collatUsd8) / 1e8)} sub="all posted tokens" />
             </div>
           )}
 
-          <div className="max-w-lg rounded-sm border border-line bg-elev p-4">
-            <div className="mb-4 flex gap-1">
-              {(["supply", "borrow"] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTab(t)}
-                  className={`rounded-sm px-3 py-1.5 font-mono text-xs ${
-                    tab === t ? "bg-elev-2 text-ink" : "text-muted"
-                  }`}
-                >
-                  {t === "supply" ? "supply QIE" : "borrow ELSE"}
-                </button>
-              ))}
+          <div className="mb-6 flex gap-1">
+            {(["supply", "collateral"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={`rounded-sm px-3 py-1.5 font-mono text-xs ${
+                  tab === t ? "bg-elev-2 text-ink" : "text-muted"
+                }`}
+              >
+                {t === "supply" ? "supply QIE" : "collateral & borrow"}
+              </button>
+            ))}
+          </div>
+
+          {tab === "supply" ? (
+            <div className="max-w-lg rounded-sm border border-line bg-elev p-4">
+              <input
+                value={supplyAmount}
+                onChange={(e) => setSupplyAmount(e.target.value)}
+                placeholder="QIE amount"
+                className="mb-3 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[14px]"
+              />
+              {!isConnected ? (
+                <p className="font-mono text-[13px] text-muted">connect a wallet first</p>
+              ) : wrong ? (
+                <AddChainButton />
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={isPending || supplyParsed <= 0n}
+                    onClick={() =>
+                      void run(
+                        "supplied",
+                        () =>
+                          writeContractAsync({
+                            address: pool,
+                            abi: lendingPoolAbi,
+                            functionName: "supply",
+                            value: supplyParsed,
+                          }),
+                        () => setSupplyAmount(""),
+                      )
+                    }
+                    className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] disabled:opacity-40"
+                  >
+                    supply
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isPending || supplyParsed <= 0n}
+                    onClick={() =>
+                      void run(
+                        "withdrawn",
+                        () =>
+                          writeContractAsync({
+                            address: pool,
+                            abi: lendingPoolAbi,
+                            functionName: "withdraw",
+                            args: [supplyParsed],
+                          }),
+                        () => setSupplyAmount(""),
+                      )
+                    }
+                    className="flex-1 rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
+                  >
+                    withdraw
+                  </button>
+                </div>
+              )}
             </div>
+          ) : (
+            <div className="max-w-lg space-y-4">
+              <div className="rounded-sm border border-line bg-elev p-4">
+                <label className="mb-1 block font-mono text-[11px] uppercase tracking-widest text-faint">
+                  collateral token address
+                </label>
+                <input
+                  value={collateralAddr}
+                  onChange={(e) => setCollateralAddr(e.target.value)}
+                  placeholder="0x… (any launched token paired with WQIE)"
+                  className="mb-2 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[13px]"
+                />
+                {collateralAddr && !collateralToken && (
+                  <p className="mb-2 font-mono text-[12px] text-down">not a valid address</p>
+                )}
+                {collateralToken && (
+                  <p className="mb-3 font-mono text-[12px] text-faint">
+                    posted {formatAmount(myCollateralAmt)} ·{" "}
+                    {collateralReady
+                      ? collateralPriceUsd8 !== undefined
+                        ? `≈ ${formatUsd((Number(myCollateralAmt) / 1e18) * (Number(collateralPriceUsd8) / 1e8))}`
+                        : "reading price…"
+                      : "price still seasoning (needs ~30min of TWAP history since first deposit)"}
+                  </p>
+                )}
 
+                <input
+                  value={collateralAmount}
+                  onChange={(e) => setCollateralAmount(e.target.value)}
+                  placeholder="collateral amount"
+                  className="mb-3 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[14px]"
+                />
+
+                {!isConnected ? (
+                  <p className="font-mono text-[13px] text-muted">connect a wallet first</p>
+                ) : wrong ? (
+                  <AddChainButton />
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={isPending || !collateralToken || collateralParsed <= 0n}
+                      onClick={() => void depositCollateral()}
+                      className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] disabled:opacity-40"
+                    >
+                      post collateral
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isPending || !collateralToken || collateralParsed <= 0n}
+                      onClick={() =>
+                        void run(
+                          "collateral withdrawn",
+                          () =>
+                            writeContractAsync({
+                              address: pool,
+                              abi: lendingPoolAbi,
+                              functionName: "withdrawCollateral",
+                              args: [collateralToken, collateralParsed],
+                            }),
+                          () => setCollateralAmount(""),
+                        )
+                      }
+                      className="flex-1 rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
+                    >
+                      withdraw
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-sm border border-line bg-elev p-4">
+                <label className="mb-1 block font-mono text-[11px] uppercase tracking-widest text-faint">
+                  borrow / repay QIE
+                </label>
+                <input
+                  value={borrowAmount}
+                  onChange={(e) => setBorrowAmount(e.target.value)}
+                  placeholder="QIE amount"
+                  className="mb-3 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[14px]"
+                />
+                {!isConnected ? (
+                  <p className="font-mono text-[13px] text-muted">connect a wallet first</p>
+                ) : wrong ? (
+                  <AddChainButton />
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={isPending || borrowParsed <= 0n}
+                      onClick={() =>
+                        void run(
+                          "borrowed",
+                          () =>
+                            writeContractAsync({
+                              address: pool,
+                              abi: lendingPoolAbi,
+                              functionName: "borrow",
+                              args: [borrowParsed],
+                            }),
+                          () => setBorrowAmount(""),
+                        )
+                      }
+                      className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] disabled:opacity-40"
+                    >
+                      borrow
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isPending || borrowParsed <= 0n}
+                      onClick={() =>
+                        void run(
+                          "repaid",
+                          () =>
+                            writeContractAsync({
+                              address: pool,
+                              abi: lendingPoolAbi,
+                              functionName: "repay",
+                              value: borrowParsed,
+                            }),
+                          () => setBorrowAmount(""),
+                        )
+                      }
+                      className="flex-1 rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
+                    >
+                      repay
+                    </button>
+                  </div>
+                )}
+                <p className="mt-3 font-mono text-[12px] text-muted">
+                  borrows are limited to {(Number(collateralFactorBps) / 100).toFixed(0)}% collateral factor and
+                  become liquidatable at {(Number(liqThresholdBps) / 100).toFixed(0)}% health.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-8 max-w-lg rounded-sm border border-line bg-elev p-4">
+            <p className="mb-3 font-mono text-[12px] uppercase tracking-widest text-faint">liquidate</p>
+            <p className="mb-3 font-mono text-[12px] text-muted">
+              anyone can liquidate an unhealthy position for an 8% collateral bonus. paste a
+              borrower and the collateral token to seize, then repay part of their QIE debt.
+            </p>
             <input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder={tab === "supply" ? "QIE amount" : "ELSE amount"}
-              className="mb-3 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[14px]"
+              value={liqBorrower}
+              onChange={(e) => setLiqBorrower(e.target.value)}
+              placeholder="borrower address"
+              className="mb-2 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[13px]"
             />
-
+            <input
+              value={liqToken}
+              onChange={(e) => setLiqToken(e.target.value)}
+              placeholder="collateral token address to seize"
+              className="mb-2 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[13px]"
+            />
+            {liqBorrowerAddr && liqAccount.data && (
+              <p className="mb-2 font-mono text-[12px] text-faint">
+                borrower health: {healthLabel(liqAccount.data[4])}{" "}
+                {Number(liqAccount.data[4] ?? 0n) < Number(liqThresholdBps) ? "(liquidatable)" : "(healthy)"}
+              </p>
+            )}
+            <input
+              value={liqPay}
+              onChange={(e) => setLiqPay(e.target.value)}
+              placeholder="QIE to repay on their behalf"
+              className="mb-3 w-full rounded-sm border border-line bg-bg px-2 py-2 font-mono text-[13px]"
+            />
             {!isConnected ? (
               <p className="font-mono text-[13px] text-muted">connect a wallet first</p>
             ) : wrong ? (
               <AddChainButton />
-            ) : tab === "supply" ? (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={isPending || parsed <= 0n}
-                  onClick={() =>
-                    void run("supplied", () =>
-                      writeContractAsync({
-                        address: market,
-                        abi: moneyMarketAbi,
-                        functionName: "supply",
-                        value: parsed,
-                      }),
-                    )
-                  }
-                  className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] disabled:opacity-40"
-                >
-                  supply QIE
-                </button>
-                <button
-                  type="button"
-                  disabled={isPending || parsed <= 0n}
-                  onClick={() =>
-                    void run("withdrawn", () =>
-                      writeContractAsync({
-                        address: market,
-                        abi: moneyMarketAbi,
-                        functionName: "withdraw",
-                        args: [parsed],
-                      }),
-                    )
-                  }
-                  className="flex-1 rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
-                >
-                  withdraw
-                </button>
-              </div>
             ) : (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={isPending || parsed <= 0n || supplied === 0n}
-                  onClick={() =>
-                    void run("borrowed ELSE", () =>
-                      writeContractAsync({
-                        address: market,
-                        abi: moneyMarketAbi,
-                        functionName: "borrow",
-                        args: [elseToken, parsed],
-                      }),
-                    )
-                  }
-                  className="flex-1 rounded-sm border border-line bg-elev-2 py-2 font-mono text-[13px] disabled:opacity-40"
-                >
-                  borrow ELSE
-                </button>
-                <button
-                  type="button"
-                  disabled={isPending || parsed <= 0n || !client || !address}
-                  onClick={() =>
-                    void (async () => {
-                      if (!client || !address) return;
-                      const allowance = await client.readContract({
-                        address: elseToken,
-                        abi: erc20Abi,
-                        functionName: "allowance",
-                        args: [address, market],
-                      });
-                      if (allowance < parsed) {
-                        const hash = await writeContractAsync({
-                          address: elseToken,
-                          abi: erc20Abi,
-                          functionName: "approve",
-                          args: [market, maxUint256],
-                        });
-                        toastPending(hash, network.explorer);
-                      }
-                      await run("repaid ELSE", () =>
-                        writeContractAsync({
-                          address: market,
-                          abi: moneyMarketAbi,
-                          functionName: "repay",
-                          args: [elseToken, parsed],
-                        }),
-                      );
-                    })()
-                  }
-                  className="flex-1 rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
-                >
-                  repay ELSE
-                </button>
-              </div>
-            )}
-            {tab === "borrow" && supplied === 0n && (
-              <p className="mt-3 font-mono text-[12px] text-muted">supply QIE first. that is the collateral for ELSE.</p>
+              <button
+                type="button"
+                disabled={isPending || !liqBorrowerAddr || !liqTokenAddr || liqPayParsed <= 0n}
+                onClick={() => void liquidate()}
+                className="w-full rounded-sm border border-line py-2 font-mono text-[13px] disabled:opacity-40"
+              >
+                liquidate
+              </button>
             )}
           </div>
         </>

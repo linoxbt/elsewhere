@@ -15,6 +15,14 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "SAMEORIGIN"
+    # A wallet-connecting dApp had no CSP at all. script-src still allows
+    # 'unsafe-inline'/'unsafe-eval' (Next.js hydration + wallet SDKs need
+    # them without a nonce-based build setup) and connect-src/img-src stay
+    # broad (RPC endpoints, WalletConnect/Reown relays, IPFS gateways, Pinata
+    # are numerous and change over time) — but object-src, base-uri, and
+    # frame-ancestors are locked down, which blocks the most common
+    # plugin-injection, base-tag-hijack, and clickjacking XSS follow-ons.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 
 [[redirects]]
   from = "/docs"

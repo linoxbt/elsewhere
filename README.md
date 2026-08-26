@@ -30,7 +30,7 @@ The product name is **elsewhere**. The protocol still runs on QIE only (testnet 
 | `/send` | Send a single token or batch to many recipients |
 | `/docs` | Full protocol and contract reference |
 
-Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (testnet ↔ mainnet), live QIE/USD oracle on mainnet, testnet faucet entry point.
+Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (testnet ↔ mainnet), live QIE/USD oracle on mainnet. Get testnet QIE from the [official faucet](https://www.qie.digital/faucet) — there's no in-app faucet button, only a docs link.
 
 ## Networks
 
@@ -107,7 +107,7 @@ forge test --match-contract LiveOracleFork --fork-url https://rpc1mainnet.qie.di
 - wagmi + viem + Reown AppKit (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`): official Reown modal only
 - Server indexer (`src/server/indexer.ts`) polls logs and serves `/api/tokens`, `/api/pools`, `/api/stats`
 - Official pool token list: `GET /api/official-tokens?chainId=1990|1983`
-- Testnet faucet eligibility: `POST /api/faucet`
+- Manual reindex trigger (requires `Authorization: Bearer $INDEX_ADMIN_SECRET`): `POST /api/index` — also called on a schedule by `netlify/functions/scheduled-reindex.ts`, since the in-process poller in `instrumentation.ts` isn't guaranteed to run between separate serverless invocations.
 
 ## Run locally
 
@@ -136,6 +136,7 @@ Copy [`.env.example`](./.env.example). Only `NEXT_PUBLIC_*` values are required 
 | `NEXT_PUBLIC_QIE_USD_ORACLE` | Testnet AggregatorV3 feed |
 | `NEXT_PUBLIC_MAINNET_*` | Optional, after a mainnet launchpad deploy |
 | `PINATA_JWT` | Optional IPFS pin for token images |
+| `INDEX_ADMIN_SECRET` | Bearer token required by `POST /api/index`. Unset = that endpoint is disabled. Set it in Netlify and it's used both by `netlify/functions/scheduled-reindex.ts` and for manual ops triggers. |
 
 ## Deploy contracts
 

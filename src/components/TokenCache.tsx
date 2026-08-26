@@ -9,7 +9,8 @@ import {
   type ReactNode,
 } from "react";
 import type { TokenMeta, TokenRecord } from "@/lib/types";
-import { NATIVE_QIE, WQIE_TOKEN, contracts } from "@/lib/config";
+import { NATIVE_QIE, launchpadContracts } from "@/lib/config";
+import { NETWORKS } from "@/lib/networks";
 
 type Cache = {
   byAddress: Record<string, TokenMeta>;
@@ -21,9 +22,20 @@ type Cache = {
 
 const Ctx = createContext<Cache | null>(null);
 
+function wqieMeta(address: `0x${string}`): TokenMeta {
+  return { address, symbol: "WQIE", name: "Wrapped QIE", decimals: 18, isNative: false };
+}
+
+// Testnet and mainnet each have their own real WQIE contract — seeding only
+// one (previously always the testnet address, regardless of the active
+// network) meant the real mainnet WQIE address never resolved to "WQIE" in
+// the UI while on mainnet.
 const seed: Record<string, TokenMeta> = {
   [NATIVE_QIE.address.toLowerCase()]: { ...NATIVE_QIE },
-  [WQIE_TOKEN.address.toLowerCase()]: { ...WQIE_TOKEN },
+  [launchpadContracts.testnet.wqie.toLowerCase()]: wqieMeta(launchpadContracts.testnet.wqie),
+  ...(NETWORKS.mainnet.officialDex
+    ? { [NETWORKS.mainnet.officialDex.wqie.toLowerCase()]: wqieMeta(NETWORKS.mainnet.officialDex.wqie) }
+    : {}),
 };
 
 export function TokenCacheProvider({ children }: { children: ReactNode }) {
@@ -46,9 +58,6 @@ export function TokenCacheProvider({ children }: { children: ReactNode }) {
           decimals: 18,
           image: t.image,
         };
-      }
-      if (contracts.wqie) {
-        next[contracts.wqie.toLowerCase()] = { ...WQIE_TOKEN };
       }
       return next;
     });

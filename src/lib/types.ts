@@ -23,6 +23,9 @@ export type TokenRecord = {
   tokenReserve: string;
 };
 
+export const TOKEN_SORTS = ["new", "market cap", "volume", "graduated"] as const;
+export type TokenSort = (typeof TOKEN_SORTS)[number];
+
 export type TradeRecord = {
   id: string;
   token: `0x${string}`;
@@ -31,6 +34,8 @@ export type TradeRecord = {
   quoteAmount: string;
   tokenAmount: string;
   priceUsd: number;
+  /** Live QIE/USD rate at trade time — used to convert quote-asset volume to USD directly. */
+  qieUsd: number;
   marketCapUsd: number;
   txHash: `0x${string}`;
   timestamp: number;

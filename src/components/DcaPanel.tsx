@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { zeroAddress } from "viem";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { dcaAbi } from "@/lib/abi/dca";
@@ -211,6 +212,89 @@ export function DcaPanel({
       </div>
 
       {address && <OrderList ids={ids.data ?? []} dca={dca} catalog={catalog} onChange={() => void ids.refetch()} />}
+
+      {/*
+       * execute() is permissionless on-chain (anyone can run a due slice and
+       * earn the 1% fee) but there was previously no way to discover orders
+       * that belong to someone else — "your orders" above only lists the
+       * connected wallet's own. Without this, DCA only ever executes when
+       * the owner themselves clicks a button, defeating the "recurring"
+       * point of the feature. This board surfaces every due order so a
+       * third-party keeper (or anyone) can find and run them.
+       */}
+      <DueOrdersBoard dca={dca} catalog={catalog} deployed={deployed} />
+    </div>
+  );
+}
+
+function DueOrdersBoard({
+  dca,
+  catalog,
+  deployed,
+}: {
+  dca: `0x${string}`;
+  catalog: TokenMeta[];
+  deployed: boolean;
+}) {
+  const client = useNetClient();
+  const { network } = useNetwork();
+
+  const nextIdQ = useReadContract({
+    address: dca,
+    abi: dcaAbi,
+    functionName: "nextId",
+    chainId: network.id,
+    query: { enabled: deployed, refetchInterval: 20_000 },
+  });
+  const nextId = nextIdQ.data ?? 1n;
+
+  const dueQ = useQuery({
+    queryKey: ["dca-due", dca, network.id, nextId.toString()],
+    queryFn: async () => {
+      if (!client || nextId <= 1n) return [] as bigint[];
+      // Scan the most recent ~200 order ids rather than the full history —
+      // enough to surface anything currently executable without an
+      // unbounded RPC fan-out as order volume grows.
+      const scanFrom = nextId > 201n ? nextId - 200n : 1n;
+      const ids: bigint[] = [];
+      for (let i = scanFrom; i < nextId; i++) ids.push(i);
+      const orders = await Promise.all(
+        ids.map((id) =>
+          client
+            .readContract({ address: dca, abi: dcaAbi, functionName: "orders", args: [id] })
+            .catch(() => null),
+        ),
+      );
+      const now = Math.floor(Date.now() / 1000);
+      return ids.filter((id, idx) => {
+        const o = orders[idx];
+        if (!o) return false;
+        const [, , , , slices, executed, , nextExec, , cancelled] = o;
+        return !cancelled && executed < slices && now >= Number(nextExec);
+      });
+    },
+    enabled: !!client && deployed && nextId > 1n,
+    refetchInterval: 20_000,
+  });
+
+  const dueIds = dueQ.data ?? [];
+  if (!deployed || dueIds.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      <p className="font-mono text-[12px] text-muted">
+        due for execution · anyone can run these and earn the 1% fee
+      </p>
+      {dueIds.map((id) => (
+        <OrderRow
+          key={id.toString()}
+          id={id}
+          dca={dca}
+          catalog={catalog}
+          onChange={() => void dueQ.refetch()}
+          showCancel={false}
+        />
+      ))}
     </div>
   );
 }
@@ -244,14 +328,20 @@ function OrderRow({
   dca,
   catalog,
   onChange,
+  showCancel = true,
 }: {
   id: bigint;
   dca: `0x${string}`;
   catalog: TokenMeta[];
   onChange: () => void;
+  /** Cancel only ever succeeds for the order's owner — hide it in contexts
+   *  (like the due-orders board) that also render other people's orders,
+   *  where clicking it would just revert with "OWNER". */
+  showCancel?: boolean;
 }) {
   const { writeContractAsync, isPending } = useNetWrite();
   const { network } = useNetwork();
+  const client = useNetClient();
   const q = useReadContract({
     address: dca,
     abi: dcaAbi,
@@ -269,6 +359,7 @@ function OrderRow({
   const due = !done && Math.floor(Date.now() / 1000) >= Number(nextExec);
 
   async function act(fn: "execute" | "cancel") {
+    if (!client) return;
     try {
       const hash = await writeContractAsync({
         address: dca,
@@ -277,6 +368,7 @@ function OrderRow({
         args: [id],
       });
       toastPending(hash, network.explorer);
+      await client.waitForTransactionReceipt({ hash });
       toastSuccess(hash, fn === "execute" ? "slice swapped" : "DCA cancelled", network.explorer);
       onChange();
     } catch (e) {
@@ -310,14 +402,16 @@ function OrderRow({
           >
             execute
           </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => void act("cancel")}
-            className="rounded-sm border border-line px-2 py-1 text-muted hover:bg-elev-2"
-          >
-            cancel
-          </button>
+          {showCancel && (
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => void act("cancel")}
+              className="rounded-sm border border-line px-2 py-1 text-muted hover:bg-elev-2"
+            >
+              cancel
+            </button>
+          )}
         </div>
       )}
     </div>

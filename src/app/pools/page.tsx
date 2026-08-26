@@ -218,11 +218,16 @@ function AddLiquidity({ pools }: { pools: PoolRecord[] }) {
         toastPending(ah);
         await client.waitForTransactionReceipt({ hash: ah });
       }
+      // 1% tolerance below the entered amounts — addLiquidityQIE may settle
+      // at a slightly different ratio than requested if the pool moved
+      // between quoting and confirming; zero-min accepted any ratio at all.
+      const minTok = (tok * 99n) / 100n;
+      const minQie = (qieAmt * 99n) / 100n;
       const hash = await writeContractAsync({
         address: contracts.ammRouter,
         abi: ammRouterAbi,
         functionName: "addLiquidityQIE",
-        args: [token as `0x${string}`, tok, 0n, 0n, address, BigInt(Math.floor(Date.now() / 1000) + 1200)],
+        args: [token as `0x${string}`, tok, minTok, minQie, address, BigInt(Math.floor(Date.now() / 1000) + 1200)],
         value: qieAmt,
       });
       toastPending(hash);
@@ -330,11 +335,28 @@ function RemoveLiquidity({ pools }: { pools: PoolRecord[] }) {
         await client.waitForTransactionReceipt({ hash: ah });
       }
       const token = pool.token0.toLowerCase() === contracts.wqie.toLowerCase() ? pool.token1 : pool.token0;
+
+      // Estimate what `liq` LP tokens are worth right now and require at
+      // least 99% of that — zero-min accepted removal at any price, which
+      // is exactly the kind of unprotected market order MEV sandwiches.
+      const [reserves, supply, token0] = await Promise.all([
+        client.readContract({ address: pair as `0x${string}`, abi: ammPairAbi, functionName: "getReserves" }),
+        client.readContract({ address: pair as `0x${string}`, abi: ammPairAbi, functionName: "totalSupply" }),
+        client.readContract({ address: pair as `0x${string}`, abi: ammPairAbi, functionName: "token0" }),
+      ]);
+      const [r0, r1] = reserves as unknown as [bigint, bigint, number];
+      const isToken0Wqie = token0.toLowerCase() === contracts.wqie.toLowerCase();
+      const [rToken, rWqie] = isToken0Wqie ? [r1, r0] : [r0, r1];
+      const expectedToken = supply > 0n ? (liq * rToken) / supply : 0n;
+      const expectedWqie = supply > 0n ? (liq * rWqie) / supply : 0n;
+      const minToken = (expectedToken * 99n) / 100n;
+      const minWqie = (expectedWqie * 99n) / 100n;
+
       const hash = await writeContractAsync({
         address: contracts.ammRouter,
         abi: ammRouterAbi,
         functionName: "removeLiquidityQIE",
-        args: [token, liq, 0n, 0n, address, BigInt(Math.floor(Date.now() / 1000) + 1200)],
+        args: [token, liq, minToken, minWqie, address, BigInt(Math.floor(Date.now() / 1000) + 1200)],
       });
       toastPending(hash);
       await client.waitForTransactionReceipt({ hash });

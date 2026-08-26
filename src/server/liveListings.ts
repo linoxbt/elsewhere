@@ -34,7 +34,24 @@ async function tokenMeta(client: PublicClient, addr: Address): Promise<{ name: s
   }
 }
 
+// Both of these walk every pair in the relevant AMM factory/factories with
+// sequential (non-multicalled) RPC reads — cheap once, but previously
+// re-run on every single request (swap/send poll official-tokens on every
+// page load; pools polls every 8s per client), which doesn't scale as the
+// pair count grows and hammers the public RPC nodes even under normal load.
+const LISTING_TTL_MS = 30_000;
+const swapTokensCache = new Map<NetworkKey, { data: TokenMeta[]; at: number }>();
+const poolsCache = new Map<NetworkKey, { data: PoolRecord[]; at: number }>();
+
 export async function liveSwapTokens(key: NetworkKey): Promise<TokenMeta[]> {
+  const cached = swapTokensCache.get(key);
+  if (cached && Date.now() - cached.at < LISTING_TTL_MS) return cached.data;
+  const data = await liveSwapTokensFresh(key);
+  swapTokensCache.set(key, { data, at: Date.now() });
+  return data;
+}
+
+async function liveSwapTokensFresh(key: NetworkKey): Promise<TokenMeta[]> {
   const net = NETWORKS[key];
   const ours = contractsFor(key);
   const out: TokenMeta[] = [
@@ -253,6 +270,14 @@ export async function liveTokenRecord(
 }
 
 export async function livePools(key: NetworkKey): Promise<PoolRecord[]> {
+  const cached = poolsCache.get(key);
+  if (cached && Date.now() - cached.at < LISTING_TTL_MS) return cached.data;
+  const data = await livePoolsFresh(key);
+  poolsCache.set(key, { data, at: Date.now() });
+  return data;
+}
+
+async function livePoolsFresh(key: NetworkKey): Promise<PoolRecord[]> {
   const net = NETWORKS[key];
   const ours = contractsFor(key);
   const client = clientFor(key);

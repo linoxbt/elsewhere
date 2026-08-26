@@ -124,24 +124,21 @@ export default function SendPage() {
   }
 
   async function send() {
-    if (!address || !canSend) return;
+    if (!address || !canSend || !client) return;
     try {
       if (mode === "single" || valid.length === 1) {
         const row = valid[0];
         const to = row.to as `0x${string}`;
-        if (token.isNative) {
-          const hash = await sendTransactionAsync({ to, value: row.amount, chainId: network.id });
-          toastPending(hash, network.explorer);
-          toastSuccess(hash, "sent", network.explorer);
-          return;
-        }
-        const hash = await writeContractAsync({
-          address: token.address,
-          abi: erc20Abi,
-          functionName: "transfer",
-          args: [to, row.amount],
-        });
+        const hash = token.isNative
+          ? await sendTransactionAsync({ to, value: row.amount, chainId: network.id })
+          : await writeContractAsync({
+              address: token.address,
+              abi: erc20Abi,
+              functionName: "transfer",
+              args: [to, row.amount],
+            });
         toastPending(hash, network.explorer);
+        await client.waitForTransactionReceipt({ hash });
         toastSuccess(hash, "sent", network.explorer);
         return;
       }
@@ -159,19 +156,18 @@ export default function SendPage() {
             value: total,
           });
           toastPending(hash, network.explorer);
+          await client.waitForTransactionReceipt({ hash });
           toastSuccess(hash, "batch sent", network.explorer);
           return;
         }
-        for (const row of valid) {
-          const hash = await sendTransactionAsync({ to: row.to as `0x${string}`, value: row.amount, chainId: network.id });
-          toastPending(hash, network.explorer);
-        }
-        toastSuccess(undefined, `${valid.length} transfers sent`);
+        await sendLoopWithPartialFailureReport(valid, (row) =>
+          sendTransactionAsync({ to: row.to as `0x${string}`, value: row.amount, chainId: network.id }),
+        );
         return;
       }
 
       if (batch !== ZERO_ADDRESS && valid.length > 1) {
-        const allowance = await client!.readContract({
+        const allowance = await client.readContract({
           address: token.address,
           abi: erc20Abi,
           functionName: "allowance",
@@ -185,6 +181,7 @@ export default function SendPage() {
             args: [batch, total],
           });
           toastPending(approveHash, network.explorer);
+          await client.waitForTransactionReceipt({ hash: approveHash });
         }
         const hash = await writeContractAsync({
           address: batch,
@@ -193,22 +190,50 @@ export default function SendPage() {
           args: [token.address, tos, amts],
         });
         toastPending(hash, network.explorer);
+        await client.waitForTransactionReceipt({ hash });
         toastSuccess(hash, "batch sent", network.explorer);
         return;
       }
 
-      for (const row of valid) {
-        const hash = await writeContractAsync({
+      await sendLoopWithPartialFailureReport(valid, (row) =>
+        writeContractAsync({
           address: token.address,
           abi: erc20Abi,
           functionName: "transfer",
           args: [row.to as `0x${string}`, row.amount],
-        });
-        toastPending(hash, network.explorer);
-      }
-      toastSuccess(undefined, `${valid.length} transfers sent`);
+        }),
+      );
     } catch (err) {
       toastFail(err);
+    }
+  }
+
+  /**
+   * Used only for the no-BatchSender-deployed fallback: each transfer is its
+   * own transaction, so one bad recipient reverting shouldn't silently swallow
+   * whichever transfers already landed, nor should the user see a blanket
+   * "success" that doesn't say how many of N actually went through.
+   */
+  async function sendLoopWithPartialFailureReport(rowsToSend: typeof valid, sendOne: (row: (typeof valid)[number]) => Promise<`0x${string}`>) {
+    if (!client) return;
+    let ok = 0;
+    let failed = 0;
+    for (const row of rowsToSend) {
+      try {
+        const hash = await sendOne(row);
+        toastPending(hash, network.explorer);
+        await client.waitForTransactionReceipt({ hash });
+        ok += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    if (failed === 0) {
+      toastSuccess(undefined, `${ok}/${rowsToSend.length} transfers sent`);
+    } else if (ok === 0) {
+      toastFail(new Error(`all ${rowsToSend.length} transfers failed`));
+    } else {
+      toastFail(new Error(`only ${ok}/${rowsToSend.length} transfers sent — ${failed} failed, check recipients`));
     }
   }
 

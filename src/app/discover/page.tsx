@@ -8,12 +8,13 @@ import { formatUsd } from "@/lib/format";
 import { cn } from "@/lib/format";
 import { explorerAddress, isLaunchpadDeployed, oracleFor, ZERO_ADDRESS } from "@/lib/config";
 import { formatOracleAge } from "@/lib/oracle";
+import { TOKEN_SORTS, type TokenSort } from "@/lib/types";
 import { useNetwork } from "@/components/NetworkProvider";
 
-const tabs = ["new", "market cap", "volume", "graduated"] as const;
+const tabs = TOKEN_SORTS;
 
 export default function DiscoverPage() {
-  const [sort, setSort] = useState<(typeof tabs)[number]>("new");
+  const [sort, setSort] = useState<TokenSort>("new");
   const [q, setQ] = useState("");
   const { data: tokens, isLoading } = useTokens(sort, q);
   const { data: stats } = useStats();

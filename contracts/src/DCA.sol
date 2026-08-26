@@ -13,6 +13,10 @@ interface IWQIEDca {
 
 interface IUniV2Router {
     function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts);
+    function extraFees(address tokenIn, uint256 amountIn, address[] calldata path)
+        external
+        view
+        returns (uint256 creatorFee, uint256 protocolFee);
     function swapExactTokensForTokens(
         uint256 amountIn,
         uint256 amountOutMin,
@@ -136,7 +140,15 @@ contract DCA {
         address[] memory path = new address[](2);
         path[0] = o.tokenIn;
         path[1] = o.tokenOut;
-        uint256[] memory quoted = router.getAmountsOut(trade, path);
+        // The router deducts its own extra creator/protocol fee from `trade`
+        // before swapping (relevant whenever tokenIn/tokenOut touches a
+        // launchpad token) — quote against that net amount, not the gross
+        // slice, or a real execution can undershoot the quoted minOut and
+        // revert with SLIPPAGE (or, with looser tolerance, silently deliver
+        // less than the quote implied).
+        (uint256 routerCreatorFee, uint256 routerProtocolFee) = router.extraFees(o.tokenIn, trade, path);
+        uint256 netTrade = trade - routerCreatorFee - routerProtocolFee;
+        uint256[] memory quoted = router.getAmountsOut(netTrade, path);
         uint256 minOut = (quoted[quoted.length - 1] * (10_000 - o.slippageBps)) / 10_000;
 
         _approveRouter(o.tokenIn, trade);

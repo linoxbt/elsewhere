@@ -73,6 +73,10 @@ contract LendingTest is Test {
         vm.startPrank(bob);
         col.approve(address(pool), 20 ether);
         pool.depositCollateral(address(col), 20 ether);
+        vm.stopPrank();
+        // TWAP needs a matured window before it can be borrowed against.
+        _warmTwap(address(col));
+        vm.startPrank(bob);
         // 20 COL * $0.1548 * 70% ≈ 2.16 QIE max. Borrow 1 QIE.
         pool.borrow(1 ether);
         assertEq(pool.borrowBalance(bob), 1 ether);
@@ -96,8 +100,10 @@ contract LendingTest is Test {
         vm.startPrank(bob);
         col.approve(address(pool), 40 ether);
         pool.depositCollateral(address(col), 40 ether);
-        pool.borrow(2 ether);
         vm.stopPrank();
+        _warmTwap(address(col));
+        vm.prank(bob);
+        pool.borrow(2 ether);
 
         vm.warp(block.timestamp + 365 days);
         pool.accrue();
@@ -129,5 +135,50 @@ contract LendingTest is Test {
         col.approve(address(batch), 12 ether);
         batch.sendToken(address(col), to, amt);
         assertEq(col.balanceOf(carol), 7 ether);
+    }
+
+    function testTwapWarmupRequired() public {
+        vm.prank(alice);
+        pool.supply{value: 100 ether}();
+
+        vm.startPrank(bob);
+        col.approve(address(pool), 20 ether);
+        pool.depositCollateral(address(col), 20 ether);
+        vm.expectRevert(bytes("TWAP_WARMUP"));
+        pool.borrow(1 ether);
+        vm.stopPrank();
+    }
+
+    function testTwapResistsSameBlockManipulation() public {
+        vm.startPrank(bob);
+        col.approve(address(pool), 40 ether);
+        pool.depositCollateral(address(col), 40 ether);
+        vm.stopPrank();
+        _warmTwap(address(col));
+
+        uint256 honestPrice = pool.tokenUsd8(address(col));
+        assertGt(honestPrice, 0);
+
+        // Attacker dumps a large amount of WQIE into the pool in one
+        // transaction to spike COL's *spot* price, then immediately reads
+        // the price a borrow would use. If LendingPool were still pricing
+        // off spot reserves this would blow up; the TWAP should barely move.
+        vm.startPrank(carol);
+        wqie.deposit{value: 5_000 ether}();
+        wqie.approve(address(router), type(uint256).max);
+        address[] memory path = new address[](2);
+        path[0] = address(wqie);
+        path[1] = address(col);
+        router.swapExactTokensForTokens(5_000 ether, 0, path, carol, block.timestamp + 60);
+        vm.stopPrank();
+
+        uint256 priceRightAfterManipulation = pool.tokenUsd8(address(col));
+        assertApproxEqRel(priceRightAfterManipulation, honestPrice, 0.01e18);
+    }
+
+    function _warmTwap(address token) internal {
+        pool.updateTwap(token);
+        vm.warp(block.timestamp + 31 minutes);
+        pool.updateTwap(token);
     }
 }

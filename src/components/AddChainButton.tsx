@@ -7,18 +7,18 @@ import { useNetwork } from "./NetworkProvider";
 export function AddChainButton({ compact = false }: { compact?: boolean }) {
   const { isConnected } = useAccount();
   const chainId = useChainId();
-  const { switchChain, isPending } = useSwitchChain();
+  const { switchChainAsync, isPending } = useSwitchChain();
   const { network } = useNetwork();
   if (isConnected && chainId === network.id) return null;
 
   async function add() {
     try {
       if (isConnected) {
-        await switchChain({ chainId: network.id });
+        await switchChainAsync({ chainId: network.id });
         return;
       }
     } catch {
-      /* fall through */
+      /* wallet doesn't recognize this chain yet — fall through to add it */
     }
     const eth = (window as unknown as { ethereum?: { request: (a: unknown) => Promise<unknown> } })
       .ethereum;

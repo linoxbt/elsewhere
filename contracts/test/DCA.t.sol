@@ -7,6 +7,7 @@ import {AMMFactory} from "../src/amm/AMMFactory.sol";
 import {AMMRouter} from "../src/amm/AMMRouter.sol";
 import {ShrineToken} from "../src/ShrineToken.sol";
 import {DCA} from "../src/DCA.sol";
+import {MockLaunchpad} from "./mocks/MockLaunchpad.sol";
 
 contract DCATest is Test {
     WQIE wqie;
@@ -68,5 +69,27 @@ contract DCATest is Test {
         vm.prank(alice);
         vm.expectRevert(bytes("INTERVAL"));
         dca.create{value: 2 ether}(address(0), address(col), 2 ether, 2, 4 minutes, 100);
+    }
+
+    /// @dev Regression test for the router-fee/quote mismatch: once the swap
+    ///      touches a launchpad token, AMMRouter deducts its own extra 0.45%
+    ///      creator+protocol fee from the input before swapping. Before the
+    ///      fix, execute() quoted minOut against the *gross* slice amount and
+    ///      this reverted with SLIPPAGE; it must now succeed.
+    function testExecuteAccountsForRouterCreatorFee() public {
+        MockLaunchpad lp = new MockLaunchpad(address(0xFEE));
+        lp.setLaunchpadToken(address(col), address(0xC0FFEE));
+        router.setLaunchpad(address(lp));
+
+        // Tight (0.1%) tolerance: the router's 0.45% extra fee is bigger than
+        // this, so a quote that ignores it (the pre-fix bug) must revert
+        // SLIPPAGE, while a quote computed net of that fee (the fix) must not.
+        vm.prank(alice);
+        uint256 id = dca.create{value: 10 ether}(address(0), address(col), 10 ether, 5, 5 minutes, 10);
+        vm.prank(bob);
+        dca.execute(id);
+        (,,,,, uint32 executed,,,,,,) = dca.orders(id);
+        assertEq(executed, 1);
+        assertGt(col.balanceOf(alice), 0);
     }
 }

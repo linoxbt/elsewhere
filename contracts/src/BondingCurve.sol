@@ -62,10 +62,11 @@ contract BondingCurve {
         virtualToken = virtualToken_;
     }
 
+    /// @dev Bare transfers are rejected rather than auto-executing a zero-slippage
+    ///      buy: an unprotected market order here would be trivially sandwichable.
+    ///      Only WQIE unwrap refunds are accepted; everyone else must call buy().
     receive() external payable {
-        if (msg.sender != wqie) {
-            buy(0, msg.sender);
-        }
+        require(msg.sender == wqie, "USE_BUY");
     }
 
     function getReserves() public view returns (uint256 quoteReserve, uint256 tokenReserve) {

@@ -83,7 +83,7 @@ export function TradePanel({ token }: { token: TokenRecord }) {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [amt, side, graduated, token, client]);
+  }, [amt, side, graduated, token, client, contracts.ammRouter, contracts.wqie]);
 
   async function submit() {
     if (!address || !client) return;

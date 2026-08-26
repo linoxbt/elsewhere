@@ -19,6 +19,8 @@ interface IAMMFactoryLike {
 interface IAMMPairLike {
     function token0() external view returns (address);
     function getReserves() external view returns (uint112, uint112, uint32);
+    function price0CumulativeLast() external view returns (uint256);
+    function price1CumulativeLast() external view returns (uint256);
 }
 
 /// @notice Isolated QIE money market. Suppliers deposit native QIE. Borrowers
@@ -52,6 +54,27 @@ contract LendingPool {
     mapping(address => uint256) public borrowUserIndex;
     mapping(address => mapping(address => uint256)) public collateral;
     mapping(address => address[]) internal _collateralTokens;
+
+    /// @dev Time-weighted collateral pricing. Reading the AMM's instantaneous
+    ///      spot reserves (the original design) lets anyone move a thin pool's
+    ///      price in one transaction, borrow against the inflated valuation,
+    ///      then reverse the swap — or push it down to unfairly liquidate a
+    ///      healthy borrower. A TWAP over the pair's existing (previously
+    ///      unused) cumulative-price accumulators removes the single-block
+    ///      manipulation window.
+    struct Twap {
+        uint256 priceCumulativeLast; // Q112.112 fixed point
+        uint32 timestampLast;
+        uint32 windowStart;
+        uint256 priceAverageWad; // WQIE per 1 token, 1e18 fixed point
+    }
+
+    uint32 public constant TWAP_MIN_WINDOW = 30 minutes;
+    uint32 public constant TWAP_MAX_STALENESS = 2 hours;
+
+    mapping(address => Twap) public twaps;
+
+    event TwapUpdated(address indexed token, uint256 priceAverageWad);
 
     event Supplied(address indexed user, uint256 amount, uint256 shares);
     event Withdrawn(address indexed user, uint256 amount, uint256 shares);
@@ -117,7 +140,11 @@ contract LendingPool {
     function depositCollateral(address token, uint256 amount) external {
         require(token != address(0) && token != address(wqie), "TOKEN");
         require(amount > 0, "AMT");
-        require(tokenUsd8(token) > 0, "PRICE");
+        require(ammFactory.getPair(token, address(wqie)) != address(0), "NO_PAIR");
+        // Seed/advance this token's TWAP checkpoint. Depositing itself is safe
+        // even before the window has matured (it doesn't rely on price); the
+        // price only needs to be ready by the time it's borrowed against.
+        updateTwap(token);
         TransferHelper.safeTransferFrom(token, msg.sender, address(this), amount);
         if (collateral[msg.sender][token] == 0) {
             require(_collateralTokens[msg.sender].length < MAX_COLLATERAL_TOKENS, "MAX");
@@ -130,6 +157,7 @@ contract LendingPool {
     function withdrawCollateral(address token, uint256 amount) external {
         accrue();
         require(amount > 0 && amount <= collateral[msg.sender][token], "BAL");
+        _refreshCollateralTwaps(msg.sender);
         collateral[msg.sender][token] -= amount;
         if (collateral[msg.sender][token] == 0) _removeCollateralToken(msg.sender, token);
         require(_healthy(msg.sender, COLLATERAL_FACTOR_BPS), "HEALTH");
@@ -141,6 +169,7 @@ contract LendingPool {
         accrue();
         require(amount > 0, "AMT");
         require(wqie.balanceOf(address(this)) >= amount, "CASH");
+        _refreshCollateralTwaps(msg.sender);
         uint256 debt = borrowBalance(msg.sender) + amount;
         borrowPrincipal[msg.sender] = debt;
         borrowUserIndex[msg.sender] = borrowIndex;
@@ -168,6 +197,7 @@ contract LendingPool {
     function liquidate(address user, address token) external payable {
         accrue();
         require(user != msg.sender, "SELF");
+        _refreshCollateralTwaps(user);
         require(!_healthy(user, LIQ_THRESHOLD_BPS), "HEALTHY");
         uint256 debt = borrowBalance(user);
         require(debt > 0 && msg.value > 0, "DEBT");
@@ -176,7 +206,7 @@ contract LendingPool {
         uint256 price = tokenUsd8(token);
         uint256 qieUsd = qieUsd8();
         require(price > 0 && qieUsd > 0, "PRICE");
-        uint256 seizeUsd8 = (pay * qieUsd / 1e18) * (10_000 + LIQ_BONUS_BPS) / 10_000;
+        uint256 seizeUsd8 = (pay * qieUsd * (10_000 + LIQ_BONUS_BPS)) / (1e18 * 10_000);
         uint256 seize = (seizeUsd8 * 1e18) / price;
         uint256 posted = collateral[user][token];
         require(posted > 0, "COLLAT");
@@ -211,16 +241,86 @@ contract LendingPool {
         return uint256(answer);
     }
 
+    /// @notice USD value of 1e18 units of `token`, priced off a matured TWAP
+    ///         (never the AMM's instantaneous spot reserves). Reverts if the
+    ///         checkpoint hasn't matured past TWAP_MIN_WINDOW yet or has gone
+    ///         stale past TWAP_MAX_STALENESS — callers must call updateTwap()
+    ///         (or trigger it via deposit/withdraw/borrow/liquidate) to refresh.
     function tokenUsd8(address token) public view returns (uint256) {
         if (token == address(0) || token == address(wqie)) return qieUsd8();
+        Twap storage t = twaps[token];
+        require(t.windowStart != 0, "TWAP_UNSET");
+        require(block.timestamp - t.windowStart >= TWAP_MIN_WINDOW, "TWAP_WARMUP");
+        require(block.timestamp - t.timestampLast <= TWAP_MAX_STALENESS, "TWAP_STALE");
+        if (t.priceAverageWad == 0) return 0;
+        return (t.priceAverageWad * qieUsd8()) / WAD;
+    }
+
+    /// @notice Whether tokenUsd8(token) can currently be read without reverting.
+    function twapReady(address token) public view returns (bool) {
+        if (token == address(0) || token == address(wqie)) return true;
+        Twap storage t = twaps[token];
+        if (t.windowStart == 0) return false;
+        if (block.timestamp - t.windowStart < TWAP_MIN_WINDOW) return false;
+        if (block.timestamp - t.timestampLast > TWAP_MAX_STALENESS) return false;
+        return true;
+    }
+
+    /// @notice Permissionlessly advance `token`'s TWAP checkpoint against its
+    ///         WQIE pair. Anyone can call this (a keeper, or automatically via
+    ///         deposit/withdraw/borrow/liquidate) to keep pricing fresh.
+    function updateTwap(address token) public returns (uint256 priceAverageWad) {
         address pair = ammFactory.getPair(token, address(wqie));
-        if (pair == address(0)) return 0;
-        (uint112 r0, uint112 r1,) = IAMMPairLike(pair).getReserves();
+        require(pair != address(0), "NO_PAIR");
+        uint256 priceCumulative = _currentCumulativePrice(token, pair);
+        uint32 nowTs = uint32(block.timestamp % 2 ** 32);
+
+        Twap storage t = twaps[token];
+        if (t.timestampLast == 0) {
+            t.priceCumulativeLast = priceCumulative;
+            t.timestampLast = nowTs;
+            t.windowStart = nowTs;
+            return t.priceAverageWad;
+        }
+        uint32 elapsed = nowTs - t.timestampLast;
+        if (elapsed == 0) return t.priceAverageWad;
+
+        uint256 avgQ112;
+        unchecked {
+            // Matches the AMM accumulator's own wraparound arithmetic.
+            avgQ112 = (priceCumulative - t.priceCumulativeLast) / elapsed;
+        }
+        t.priceAverageWad = (avgQ112 * WAD) >> 112;
+        t.priceCumulativeLast = priceCumulative;
+        t.timestampLast = nowTs;
+        emit TwapUpdated(token, t.priceAverageWad);
+        return t.priceAverageWad;
+    }
+
+    /// @dev Cumulative price extrapolated to "now", mirroring the canonical
+    ///      UniswapV2 oracle pattern: the pair only writes its accumulator on
+    ///      mint/burn/swap/sync, so we add the elapsed-time contribution at
+    ///      the pair's last-known reserves on top of its stored value.
+    function _currentCumulativePrice(address token, address pair) internal view returns (uint256 priceCumulative) {
         address t0 = IAMMPairLike(pair).token0();
-        (uint256 tokenRes, uint256 wqieRes) =
-            t0 == token ? (uint256(r0), uint256(r1)) : (uint256(r1), uint256(r0));
-        if (tokenRes == 0 || wqieRes == 0) return 0;
-        return (wqieRes * qieUsd8()) / tokenRes;
+        priceCumulative =
+            t0 == token ? IAMMPairLike(pair).price0CumulativeLast() : IAMMPairLike(pair).price1CumulativeLast();
+        (uint112 r0, uint112 r1, uint32 pairTs) = IAMMPairLike(pair).getReserves();
+        uint32 nowTs = uint32(block.timestamp % 2 ** 32);
+        uint32 elapsed = nowTs - pairTs;
+        if (elapsed == 0) return priceCumulative;
+        (uint256 tokenRes, uint256 wqieRes) = t0 == token ? (uint256(r0), uint256(r1)) : (uint256(r1), uint256(r0));
+        if (tokenRes == 0) return priceCumulative;
+        unchecked {
+            priceCumulative += (wqieRes * (uint256(1) << 112) / tokenRes) * elapsed;
+        }
+    }
+
+    function _refreshCollateralTwaps(address user) internal {
+        address[] storage list = _collateralTokens[user];
+        for (uint256 i; i < list.length; i++) {
+            updateTwap(list[i]);
+        }
     }
 
     function collateralUsd8(address user) public view returns (uint256 usd8) {

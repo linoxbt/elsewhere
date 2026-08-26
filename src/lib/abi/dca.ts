@@ -29,6 +29,13 @@ export const dcaAbi = [
   },
   {
     type: "function",
+    name: "nextId",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
     name: "ownerOrders",
     stateMutability: "view",
     inputs: [{ name: "user", type: "address" }],

@@ -2,10 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import type { TokenRecord } from "@/lib/types";
+import type { TokenRecord, TokenSort } from "@/lib/types";
 import { useTokenCache } from "@/components/TokenCache";
 
-export function useTokens(sort: string, q: string) {
+export function useTokens(sort: TokenSort, q: string) {
   const { putMany } = useTokenCache();
   const query = useQuery({
     queryKey: ["tokens", sort, q],

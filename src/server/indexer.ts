@@ -9,6 +9,7 @@ import { getQieUsd } from "./price";
 import {
   applyTransfer,
   getLastBlock,
+  getLastIndexedAt,
   getToken,
   listPools,
   listTokens,
@@ -16,6 +17,7 @@ import {
   pushTrade,
   saveDb,
   setLastBlock,
+  setLastIndexedAt,
   setMeta,
   upsertPool,
   upsertToken,
@@ -38,6 +40,7 @@ async function tick() {
   try {
     await sync();
     await refreshLive();
+    setLastIndexedAt(Math.floor(Date.now() / 1000));
     await saveDb();
   } catch (err) {
     console.error("[indexer]", err);
@@ -236,6 +239,8 @@ async function onCurve(log: Log, token: TokenRecord) {
       const block = await publicClient.getBlock({ blockNumber: log.blockNumber! });
       const priceQie = Number(args.price) / 1e18;
       const marketCapUsd = Number(args.marketCapUsd) / 1e18;
+      const priceUsd = PROTOCOL.totalSupply > 0 ? marketCapUsd / PROTOCOL.totalSupply : 0;
+      const qieUsd = priceQie > 0 ? priceUsd / priceQie : await getQieUsd().catch(() => 0);
       const rec: TradeRecord = {
         id: `${log.transactionHash}-${log.logIndex}`,
         token: token.address,
@@ -243,7 +248,8 @@ async function onCurve(log: Log, token: TokenRecord) {
         isBuy: args.isBuy,
         quoteAmount: args.quoteAmount.toString(),
         tokenAmount: args.tokenAmount.toString(),
-        priceUsd: PROTOCOL.totalSupply > 0 ? marketCapUsd / PROTOCOL.totalSupply : 0,
+        priceUsd,
+        qieUsd,
         marketCapUsd,
         txHash: log.transactionHash as Hex,
         timestamp: Number(block.timestamp),
@@ -325,6 +331,7 @@ async function onPair(log: Log, pool: PoolRecord) {
         quoteAmount: quote.toString(),
         tokenAmount: tokenAmt.toString(),
         priceUsd: priceQie * qieUsd,
+        qieUsd,
         marketCapUsd: 0,
         txHash: log.transactionHash as Hex,
         timestamp: Number(block.timestamp),
@@ -464,5 +471,20 @@ async function refreshLive() {
 }
 
 export async function runOnce() {
+  await tick();
+}
+
+const STALE_AFTER_SECONDS = 20;
+
+/**
+ * Best-effort inline catch-up for request paths (trades/chart) that have no
+ * live-on-chain-read fallback and depend entirely on the store having been
+ * indexed. `tick()`'s own `running` guard makes this cheap/no-op when a
+ * background poll already ran recently.
+ */
+export async function catchUpIfStale() {
+  if (!isProtocolDeployed) return;
+  const ageSeconds = Math.floor(Date.now() / 1000) - getLastIndexedAt();
+  if (ageSeconds < STALE_AFTER_SECONDS) return;
   await tick();
 }

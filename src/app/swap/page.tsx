@@ -6,11 +6,10 @@ import { useAccount, useChainId } from "wagmi";
 import { isAddress, zeroAddress } from "viem";
 import { ammRouterAbi } from "@/lib/abi/amm";
 import { qieDexRouterAbi } from "@/lib/abi/qiedex";
-import { erc20Abi } from "@/lib/abi/launchpad";
 import { NATIVE_QIE, ZERO_ADDRESS, contractsFor, isLaunchpadDeployed, isZero } from "@/lib/config";
 import { useNetClient, useNetWrite } from "@/hooks/useNetChain";
 import { formatAmount, formatUsdPrecise, parseAmount } from "@/lib/format";
-import { toastFail, toastPending, toastSuccess } from "@/lib/tx";
+import { maybeApprove, toastFail, toastPending, toastSuccess } from "@/lib/tx";
 import { AddChainButton } from "@/components/AddChainButton";
 import { TokenImage } from "@/components/TokenImage";
 import { useTokenCache } from "@/components/TokenCache";
@@ -177,7 +176,7 @@ function SwapInner() {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [amt, inAddr, outAddr, client, useOfficial, official, network.key, ours.ammRouter]);
+  }, [amt, inAddr, outAddr, client, useOfficial, official, network.key, ours.ammRouter, wrap]);
 
   async function submit() {
     if (!address || !client || !quote) return;
@@ -378,31 +377,6 @@ function SwapInner() {
       )}
     </div>
   );
-}
-
-async function maybeApprove(
-  token: `0x${string}`,
-  spender: `0x${string}`,
-  amt: bigint,
-  owner: `0x${string}`,
-  client: NonNullable<ReturnType<typeof useNetClient>>,
-  write: ReturnType<typeof useNetWrite>["writeContractAsync"],
-) {
-  const allowance = await client.readContract({
-    address: token,
-    abi: erc20Abi,
-    functionName: "allowance",
-    args: [owner, spender],
-  });
-  if (allowance >= amt) return;
-  const ah = await write({
-    address: token,
-    abi: erc20Abi,
-    functionName: "approve",
-    args: [spender, amt],
-  });
-  toastPending(ah);
-  await client.waitForTransactionReceipt({ hash: ah });
 }
 
 function TokenField({
