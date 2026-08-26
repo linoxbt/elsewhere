@@ -7,9 +7,9 @@ import {LendingPool} from "../src/LendingPool.sol";
 
 /// PRIVATE_KEY=0x… forge script script/DeployExtras.s.sol:DeployExtras --rpc-url qie_testnet --broadcast
 contract DeployExtras is Script {
-    address constant TESTNET_WQIE = 0x76623AA01FE1784130E1B56FEcDb83C1E7b0E491;
-    address constant TESTNET_ORACLE = 0x7F3635B76790cF57A955E6576504ef17564FE924;
-    address constant TESTNET_AMM_FACTORY = 0xc0E497c064163d455e8AEaD40795401d09Ac4B43;
+    address constant TESTNET_WQIE = 0xDEF2Bd495F8874BF52DA9b1AA6c58e821695fB7F;
+    address constant TESTNET_ORACLE = 0xd394a84c695cb6a93026134b24EBad8B62Da6B39;
+    address constant TESTNET_AMM_FACTORY = 0x71EF5F125119654a19d80B94fB8Ef75fd37eB882;
 
     function run() external {
         uint256 pk = vm.envUint("PRIVATE_KEY");

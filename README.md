@@ -58,17 +58,17 @@ Shared wallet (Reown AppKit: injected + WalletConnect QR), network switcher (tes
 
 | Contract | Address |
 | --- | --- |
-| Launchpad factory | [`0xE02F1719Ce46EEbFFE450dB1f367012FaD4b43C2`](https://testnet.qie.digital/address/0xE02F1719Ce46EEbFFE450dB1f367012FaD4b43C2) |
-| WQIE | [`0x76623AA01FE1784130E1B56FEcDb83C1E7b0E491`](https://testnet.qie.digital/address/0x76623AA01FE1784130E1B56FEcDb83C1E7b0E491) |
-| AMM factory | [`0xc0E497c064163d455e8AEaD40795401d09Ac4B43`](https://testnet.qie.digital/address/0xc0E497c064163d455e8AEaD40795401d09Ac4B43) |
-| AMM router | [`0xC348694650Fd0E2b51197425e4Ad88aEe11b5d48`](https://testnet.qie.digital/address/0xC348694650Fd0E2b51197425e4Ad88aEe11b5d48) |
-| Fee router | [`0x998d51F77199A6a64837a648Ea9dB80F8F44607c`](https://testnet.qie.digital/address/0x998d51F77199A6a64837a648Ea9dB80F8F44607c) |
-| Testnet QIE/USD feed | [`0x7F3635B76790cF57A955E6576504ef17564FE924`](https://testnet.qie.digital/address/0x7F3635B76790cF57A955E6576504ef17564FE924) |
-| Lending pool | [`0x9fC086D60443362D49E2124D2dAF8c5814113918`](https://testnet.qie.digital/address/0x9fC086D60443362D49E2124D2dAF8c5814113918) |
-| Batch sender | [`0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4`](https://testnet.qie.digital/address/0x98530560C180f1a0701292eFfA46d08Cc0E2fBE4) |
+| Launchpad factory | [`0x25aFC0fb0aA41A000037070f08F9811E22E51099`](https://testnet.qie.digital/address/0x25aFC0fb0aA41A000037070f08F9811E22E51099) |
+| WQIE | [`0xDEF2Bd495F8874BF52DA9b1AA6c58e821695fB7F`](https://testnet.qie.digital/address/0xDEF2Bd495F8874BF52DA9b1AA6c58e821695fB7F) |
+| AMM factory | [`0x71EF5F125119654a19d80B94fB8Ef75fd37eB882`](https://testnet.qie.digital/address/0x71EF5F125119654a19d80B94fB8Ef75fd37eB882) |
+| AMM router | [`0xC87F2eb3a67C0D4E113e8d3173ce5Bb488850493`](https://testnet.qie.digital/address/0xC87F2eb3a67C0D4E113e8d3173ce5Bb488850493) |
+| Fee router | [`0x7a44F658F7Bf50975905Caf6B25FC2e1038cf4ba`](https://testnet.qie.digital/address/0x7a44F658F7Bf50975905Caf6B25FC2e1038cf4ba) |
+| Testnet QIE/USD feed | [`0xd394a84c695cb6a93026134b24EBad8B62Da6B39`](https://testnet.qie.digital/address/0xd394a84c695cb6a93026134b24EBad8B62Da6B39) |
+| Lending pool | [`0x4cE8A6682E7ec0203eF4e21cda4d3781eFFCDD13`](https://testnet.qie.digital/address/0x4cE8A6682E7ec0203eF4e21cda4d3781eFFCDD13) |
+| Batch sender | [`0x7Bfa0E9c8b34E8dd0d658d697C0248721aaB4938`](https://testnet.qie.digital/address/0x7Bfa0E9c8b34E8dd0d658d697C0248721aaB4938) |
 | Money market | [`0xbE8B9Ae75BfA7FfDd79C4ae684f9DF18b7e8CBf9`](https://testnet.qie.digital/address/0xbE8B9Ae75BfA7FfDd79C4ae684f9DF18b7e8CBf9) |
-| ELSE token | [`0x870505B6e86eA2e5910409751aB1F13186825E93`](https://testnet.qie.digital/address/0x870505B6e86eA2e5910409751aB1F13186825E93) |
-| DCA | [`0xbE743B8c1B2dC68161F49b1a6Cc0Cd53C36BC23a`](https://testnet.qie.digital/address/0xbE743B8c1B2dC68161F49b1a6Cc0Cd53C36BC23a) |
+| ELSE token | [`0x1d70D07D906221eA9E2A0931A57B5C161B73655f`](https://testnet.qie.digital/address/0x1d70D07D906221eA9E2A0931A57B5C161B73655f) |
+| DCA | [`0x95127bf35091DE1917a425ea7883635DB803D756`](https://testnet.qie.digital/address/0x95127bf35091DE1917a425ea7883635DB803D756) |
 
 Creation fee on testnet is **0.5 QIE** (feed set to $5 so the on-chain $2.50 fee is payable with a faucet drop). Graduation threshold remains **$25,000** USD market cap.
 
@@ -148,6 +148,14 @@ PRIVATE_KEY=0x… forge script script/Deploy.s.sol:Deploy --rpc-url qie --broadc
 ```
 
 On chain 1983 the script also deploys `TestnetPriceFeed`. On 1990 it binds the official QIE/USD oracle.
+
+`Deploy.s.sol` only deploys the core stack (WQIE, FeeRouter, AMMFactory, AMMRouter, LaunchpadFactory, oracle). `DeployExtras.s.sol` (LendingPool, BatchSender) and `DeployDca.s.sol` (DCA) each hardcode the WQIE/oracle/AMM addresses they wire against — after redeploying the core stack, update those constants in the two scripts before running them, or they'll point at stale infra:
+
+```bash
+PRIVATE_KEY=0x… forge script script/DeployExtras.s.sol:DeployExtras --rpc-url qie_testnet --broadcast
+PRIVATE_KEY=0x… forge script script/DeployDca.s.sol:DeployDca --rpc-url qie_testnet --broadcast
+PRIVATE_KEY=0x… forge script script/DeployMarket.s.sol:DeployMarket --rpc-url qie_testnet --broadcast  # ELSE token only
+```
 
 ## Netlify
 
