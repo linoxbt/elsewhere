@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 import { Marquee } from "@/components/Marquee";
+import { BigMarquee } from "@/components/BigMarquee";
+import { Crosshair } from "@/components/Crosshair";
 import { LivePricePill } from "@/components/LivePricePill";
 import { ParallaxLayer } from "@/components/ParallaxLayer";
-import { AnimatedBondingCurveMotif } from "@/components/motifs/AnimatedBondingCurve";
+import { ParticleDrift } from "@/components/ParticleDrift";
 import { BondingCurveMotif } from "@/components/motifs/BondingCurve";
 import { LiquidityRingsMotif } from "@/components/motifs/LiquidityRings";
 import { NetworkNodesMotif } from "@/components/motifs/NetworkNodes";
 import { CandleTicksMotif } from "@/components/motifs/CandleTicks";
+import { ProtocolMarkMotif } from "@/components/motifs/ProtocolMark";
+
+const verbs = ["LAUNCH", "GRADUATE", "SWAP", "SUPPLY", "BORROW", "SEND"];
 
 const products = [
   { href: "/create", title: "Launch", copy: "Deploy a token and bonding curve in one transaction. Image, ticker, socials, optional first buy." },
@@ -64,58 +69,57 @@ export default function LandingPage() {
   return (
     <div className="-mx-3 -my-5 sm:-mx-4 sm:-my-8">
       {/* ── hero ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-line px-3 py-10 sm:px-4 sm:py-16 lg:py-24">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_420px_at_70%_-80px,rgba(196,181,160,0.12),transparent_60%)]" />
-        <div className="pointer-events-none absolute -right-[10%] -top-[8%] w-[85%] text-accent opacity-[0.16] sm:-right-[5%] sm:w-[62%] lg:w-[52%]">
-          <AnimatedBondingCurveMotif />
-        </div>
-        <div className="relative mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:gap-8 lg:gap-12">
-          <div className="min-w-0 lp-fade">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-faint sm:text-[12px]">
-                launchpad · amm · money market
-              </p>
-              <LivePricePill />
-            </div>
-            <h1 className="mt-2 font-mono text-[23px] leading-[1.15] tracking-tight text-ink sm:mt-4 sm:text-4xl lg:text-6xl">
-              Launch, trade, and lend on QIE in one place.
-            </h1>
-            <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted sm:mt-5 sm:text-base lg:text-lg">
-              Elsewhere is the unified token launchpad and AMM for QIE. Bonding-curve launches
-              graduate into live pools. Swap reads official QIEdex liquidity. Lend QIE, borrow
-              against any launched token.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
-              <Link href="/discover" className="btn-cta rounded-sm px-3 py-2 font-mono text-[12px] sm:px-4 sm:text-[13px]">
-                open app
-              </Link>
-              <Link
-                href="/create"
-                className="rounded-sm border border-line px-3 py-2 font-mono text-[12px] hover:bg-elev-2 sm:px-4 sm:text-[13px]"
-              >
-                create a token
-              </Link>
-              <Link
-                href="/docs"
-                className="rounded-sm border border-line px-3 py-2 font-mono text-[12px] text-muted hover:text-ink sm:px-4 sm:text-[13px]"
-              >
-                read the docs
-              </Link>
-            </div>
+      <section className="relative overflow-hidden border-b border-line px-3 py-14 sm:px-4 sm:py-24 lg:py-32">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1100px_520px_at_70%_-120px,rgba(196,181,160,0.14),transparent_60%)]" />
+        <ParticleDrift />
+        <ParallaxLayer
+          speed={70}
+          className="pointer-events-none absolute -right-[30%] -top-[15%] w-[110%] text-accent opacity-[0.14] sm:-right-[12%] sm:-top-[10%] sm:w-[70%] lg:w-[58%]"
+        >
+          <div className="protocol-mark-spin">
+            <ProtocolMarkMotif />
           </div>
-          <div className="lp-fade lp-d2 relative justify-self-end">
-            <div className="lp-glow pointer-events-none absolute inset-0 -z-10 rounded-full bg-[radial-gradient(circle,rgba(196,181,160,0.35),transparent_65%)] blur-2xl" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/mark.jpg"
-              alt="elsewhere"
-              width={360}
-              height={360}
-              className="lp-float h-24 w-24 rounded-sm object-cover shadow-[0_16px_48px_rgba(0,0,0,0.35)] sm:h-52 sm:w-52 lg:h-80 lg:w-80"
-            />
+        </ParallaxLayer>
+        <div className="relative mx-auto max-w-6xl">
+          <div className="lp-fade flex flex-wrap items-center gap-2">
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-faint sm:text-[12px]">
+              launchpad · amm · money market
+            </p>
+            <LivePricePill />
+          </div>
+          <h1 className="lp-fade lp-d1 mt-3 max-w-4xl font-mono text-[13vw] leading-[0.98] tracking-tight text-ink sm:mt-6 sm:text-[7.5vw] lg:text-[104px]">
+            Launch, trade,
+            <br />
+            lend on QIE.
+          </h1>
+          <p className="lp-fade lp-d2 mt-5 max-w-xl text-[14px] leading-relaxed text-muted sm:mt-7 sm:text-base lg:text-lg">
+            Elsewhere is the unified token launchpad and AMM for QIE. Bonding-curve launches
+            graduate into live pools. Swap reads official QIEdex liquidity. Lend QIE, borrow
+            against any launched token.
+          </p>
+          <div className="lp-fade lp-d3 mt-6 flex flex-wrap gap-2 sm:mt-9 sm:gap-3">
+            <Link href="/discover" className="btn-cta rounded-sm px-3 py-2 font-mono text-[12px] sm:px-4 sm:text-[13px]">
+              open app
+            </Link>
+            <Link
+              href="/create"
+              className="rounded-sm border border-line px-3 py-2 font-mono text-[12px] hover:bg-elev-2 sm:px-4 sm:text-[13px]"
+            >
+              create a token
+            </Link>
+            <Link
+              href="/docs"
+              className="rounded-sm border border-line px-3 py-2 font-mono text-[12px] text-muted hover:text-ink sm:px-4 sm:text-[13px]"
+            >
+              read the docs
+            </Link>
           </div>
         </div>
       </section>
+
+      <div className="relative border-b border-line">
+        <Crosshair className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-muted" />
+      </div>
 
       {/* ── stats ────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-line px-3 py-8 sm:px-4 sm:py-10">
@@ -163,6 +167,13 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── verbs marquee ────────────────────────────────────────────── */}
+      <section className="border-b border-line py-10 sm:py-14">
+        <Reveal>
+          <BigMarquee items={verbs} />
+        </Reveal>
       </section>
 
       {/* ── product suite ────────────────────────────────────────────── */}

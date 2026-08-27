@@ -216,6 +216,35 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb {
   animation-play-state: paused;
 }
 
+@keyframes particle-drift {
+  0%,
+  100% {
+    transform: rotate(var(--rot, 0deg)) translate(0, 0);
+    opacity: 0.15;
+  }
+  50% {
+    transform: rotate(var(--rot, 0deg)) translate(10px, -16px);
+    opacity: 0.45;
+  }
+}
+.particle-drift {
+  animation-name: particle-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes mark-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.protocol-mark-spin {
+  animation: mark-rotate 90s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
@@ -226,6 +255,13 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb {
     animation: none;
   }
   .marquee-track {
+    animation: none;
+  }
+  .particle-drift {
+    animation: none;
+    opacity: 0.25;
+  }
+  .protocol-mark-spin {
     animation: none;
   }
 }
