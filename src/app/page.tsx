@@ -11,16 +11,17 @@ import { LiquidityRingsMotif } from "@/components/motifs/LiquidityRings";
 import { NetworkNodesMotif } from "@/components/motifs/NetworkNodes";
 import { CandleTicksMotif } from "@/components/motifs/CandleTicks";
 import { ProtocolMarkMotif } from "@/components/motifs/ProtocolMark";
+import { BrowserFrame } from "@/components/BrowserFrame";
 
 const verbs = ["LAUNCH", "GRADUATE", "SWAP", "SUPPLY", "BORROW", "SEND"];
 
 const products = [
-  { href: "/create", title: "Launch", copy: "Deploy a token and bonding curve in one transaction. Image, ticker, socials, optional first buy." },
-  { href: "/discover", title: "Discover", copy: "Watch new launches, market cap, volume, and graduates as they move toward the AMM." },
-  { href: "/swap", title: "Swap", copy: "Trade official QIEdex pools on mainnet and Elsewhere pairs on testnet." },
-  { href: "/pools", title: "Pools", copy: "Add or remove liquidity. Create pairs. Earn the LP cut of every swap." },
-  { href: "/lend", title: "Lend", copy: "Supply QIE to earn yield, or post any launched token as collateral and borrow QIE against it." },
-  { href: "/send", title: "Send", copy: "Pay one address or fan out a batch of native QIE / ERC-20 in a single flow." },
+  { href: "/create", shot: "/shots/create.png", title: "Launch", copy: "Deploy a token and bonding curve in one transaction. Image, ticker, socials, optional first buy." },
+  { href: "/discover", shot: "/shots/discover.png", title: "Discover", copy: "Watch new launches, market cap, volume, and graduates as they move toward the AMM." },
+  { href: "/swap", shot: "/shots/swap.png", title: "Swap", copy: "Trade official QIEdex pools on mainnet and Elsewhere pairs on testnet." },
+  { href: "/pools", shot: "/shots/pools.png", title: "Pools", copy: "Add or remove liquidity. Create pairs. Earn the LP cut of every swap." },
+  { href: "/lend", shot: "/shots/lend.png", title: "Lend", copy: "Supply QIE to earn yield, or post any launched token as collateral and borrow QIE against it." },
+  { href: "/send", shot: "/shots/send.png", title: "Send", copy: "Pay one address or fan out a batch of native QIE / ERC-20 in a single flow." },
 ];
 
 const steps = [
@@ -117,6 +118,17 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── featured screen ──────────────────────────────────────────── */}
+      <section className="relative overflow-hidden border-b border-line px-3 py-12 sm:px-4 sm:py-20">
+        <div className="mx-auto max-w-5xl">
+          <ParallaxLayer speed={45} className="mx-auto w-full max-w-3xl -rotate-1 sm:-rotate-2">
+            <Reveal variant="scale">
+              <BrowserFrame src="/shots/swap.png" path="/swap" priority className="rotate-0" />
+            </Reveal>
+          </ParallaxLayer>
+        </div>
+      </section>
+
       <div className="relative border-b border-line">
         <Crosshair className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-muted" />
       </div>
@@ -195,14 +207,27 @@ export default function LandingPage() {
               <Reveal key={p.href} delay={(i % 3) * 80} variant="scale">
                 <Link
                   href={p.href}
-                  className="lp-card group block rounded-sm border border-line bg-elev p-4 hover:border-line-strong hover:bg-elev-2"
+                  className="lp-card group block overflow-hidden rounded-sm border border-line bg-elev hover:border-line-strong"
                 >
-                  <div className="flex items-center justify-between">
-                    <p className="font-mono text-[14px] text-ink">{p.title}</p>
-                    <p className="font-mono text-[11px] text-faint">{String(i + 1).padStart(2, "0")}</p>
+                  <div className="overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={p.shot}
+                      alt={`Elsewhere ${p.title.toLowerCase()} screen`}
+                      width={1440}
+                      height={640}
+                      loading="lazy"
+                      className="block h-32 w-full scale-105 object-cover object-top transition-transform duration-500 group-hover:scale-110 sm:h-36"
+                    />
                   </div>
-                  <p className="mt-2 text-[14px] leading-relaxed text-muted">{p.copy}</p>
-                  <p className="mt-3 font-mono text-[12px] text-accent group-hover:underline">{p.href}</p>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="font-mono text-[14px] text-ink">{p.title}</p>
+                      <p className="font-mono text-[11px] text-faint">{String(i + 1).padStart(2, "0")}</p>
+                    </div>
+                    <p className="mt-2 text-[14px] leading-relaxed text-muted">{p.copy}</p>
+                    <p className="mt-3 font-mono text-[12px] text-accent group-hover:underline">{p.href}</p>
+                  </div>
                 </Link>
               </Reveal>
             ))}
